@@ -134,12 +134,19 @@
   /* --------------------------------------------------
      Event listeners (lightweight — just store values)
      -------------------------------------------------- */
+  const hoverHint = document.getElementById("hover-hint");
+  let hintDismissed = false;
+
   document.addEventListener("mousemove", (e) => {
     mouseX = e.clientX;
     mouseY = e.clientY;
     if (!glowVisible) {
       glowVisible = true;
       cursorGlow.classList.add("active");
+    }
+    if (!hintDismissed && hoverHint) {
+      hintDismissed = true;
+      setTimeout(() => hoverHint.classList.add("hidden"), 600);
     }
     scheduleFrame();
   }, { passive: true });

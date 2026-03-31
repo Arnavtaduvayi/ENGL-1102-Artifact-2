@@ -66,6 +66,36 @@ body {
 }
 
 /* ============================================================
+   HOVER HINT
+   ============================================================ */
+.hover-hint {
+  position: absolute;
+  bottom: 6%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 7;
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--clr-text-muted);
+  pointer-events: none;
+  opacity: 0;
+  animation: hintAppear 1.5s ease-out 3.5s forwards;
+  transition: opacity 0.8s ease;
+}
+
+.hover-hint.hidden {
+  opacity: 0 !important;
+}
+
+@keyframes hintAppear {
+  0%   { opacity: 0; }
+  50%  { opacity: 0.7; }
+  100% { opacity: 0.7; }
+}
+
+/* ============================================================
    SECRET MESSAGE LAYER (flashlight reveal)
    ============================================================ */
 .secret-layer {
