@@ -1,0 +1,393 @@
+/* ============================================================
+   NEVER LET ME GO — HAILSHAM
+   A moody, atmospheric single-page experience
+   ============================================================ */
+
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --clr-bg: #0c0b0d;
+  --clr-bg-warm: #1a1714;
+  --clr-surface: #1e1b18;
+  --clr-door: #2c2520;
+  --clr-door-hover: #3a322b;
+  --clr-text: #d8cfc4;
+  --clr-text-muted: #8a7f72;
+  --clr-accent: #c9a96e;
+  --clr-fog: rgba(200, 190, 175, 0.06);
+  --font-display: 'Cormorant Garamond', Georgia, serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+  background: var(--clr-bg);
+  color: var(--clr-text);
+}
+
+body {
+  font-family: var(--font-body);
+  font-weight: 300;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* ============================================================
+   WELCOME SECTION
+   ============================================================ */
+.welcome-section {
+  position: relative;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(ellipse at 50% 40%, #1f1c18 0%, var(--clr-bg) 70%);
+  overflow: hidden;
+}
+
+/* Fog layers */
+.fog {
+  position: absolute;
+  top: 0;
+  width: 60%;
+  height: 100%;
+  pointer-events: none;
+  opacity: 0.4;
+}
+
+.fog--left {
+  left: -10%;
+  background: linear-gradient(90deg, rgba(200,185,160,0.08), transparent);
+  animation: fogDrift 18s ease-in-out infinite alternate;
+}
+
+.fog--right {
+  right: -10%;
+  background: linear-gradient(-90deg, rgba(200,185,160,0.08), transparent);
+  animation: fogDrift 22s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes fogDrift {
+  0%   { transform: translateX(-30px) scaleX(1); }
+  100% { transform: translateX(30px) scaleX(1.1); }
+}
+
+.welcome-content {
+  text-align: center;
+  z-index: 1;
+  animation: fadeInUp 2s ease-out;
+}
+
+.welcome-subtitle {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--clr-text-muted);
+  margin-bottom: 1rem;
+}
+
+.welcome-title {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: clamp(3.5rem, 10vw, 8rem);
+  letter-spacing: 0.06em;
+  color: var(--clr-text);
+  text-shadow: 0 0 60px rgba(201, 169, 110, 0.15);
+  margin-bottom: 2.5rem;
+}
+
+.welcome-hint {
+  font-size: 0.75rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--clr-text-muted);
+  opacity: 0;
+  animation: fadeIn 1.5s ease-out 2s forwards;
+}
+
+.scroll-arrow {
+  margin-top: 1.5rem;
+  color: var(--clr-text-muted);
+  opacity: 0;
+  animation: fadeIn 1.5s ease-out 2.3s forwards, bob 2.5s ease-in-out 3s infinite;
+}
+
+@keyframes fadeInUp {
+  0%   { opacity: 0; transform: translateY(30px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  0%   { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@keyframes bob {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(8px); }
+}
+
+/* ============================================================
+   HALLWAY SECTION
+   ============================================================ */
+.hallway-section {
+  min-height: 100vh;
+  padding: 8rem 2rem 6rem;
+  background: linear-gradient(180deg, var(--clr-bg) 0%, var(--clr-bg-warm) 30%, var(--clr-bg-warm) 70%, var(--clr-bg) 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.hallway-intro {
+  text-align: center;
+  margin-bottom: 5rem;
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 1s ease, transform 1s ease;
+}
+
+.hallway-intro.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.hallway-heading {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  margin-bottom: 1rem;
+  color: var(--clr-text);
+}
+
+.hallway-subtext {
+  font-size: 1rem;
+  color: var(--clr-text-muted);
+  max-width: 460px;
+  margin: 0 auto;
+}
+
+/* ============================================================
+   DOOR CARDS
+   ============================================================ */
+.doors-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 3rem;
+  max-width: 1100px;
+  width: 100%;
+}
+
+.door-card {
+  text-align: center;
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(50px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.door-card.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.door-card:nth-child(2) { transition-delay: 0.15s; }
+.door-card:nth-child(3) { transition-delay: 0.30s; }
+.door-card:nth-child(4) { transition-delay: 0.45s; }
+
+.door-frame {
+  position: relative;
+  width: 140px;
+  height: 220px;
+  margin: 0 auto 1.5rem;
+  border: 2px solid var(--clr-text-muted);
+  border-radius: 80px 80px 0 0;
+  overflow: hidden;
+  transition: border-color 0.4s ease, box-shadow 0.4s ease;
+}
+
+.door-card:hover .door-frame {
+  border-color: var(--clr-accent);
+  box-shadow: 0 0 40px rgba(201, 169, 110, 0.12), inset 0 0 30px rgba(201, 169, 110, 0.05);
+}
+
+.door-surface {
+  position: absolute;
+  inset: 3px;
+  background: var(--clr-door);
+  border-radius: 77px 77px 0 0;
+  transition: background 0.4s ease, transform 0.6s ease;
+  transform-origin: left center;
+}
+
+.door-card:hover .door-surface {
+  background: var(--clr-door-hover);
+  transform: perspective(600px) rotateY(-25deg);
+}
+
+.door-knob {
+  position: absolute;
+  right: 18px;
+  top: 55%;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--clr-accent);
+  opacity: 0.7;
+  transition: opacity 0.3s ease;
+}
+
+.door-card:hover .door-knob {
+  opacity: 1;
+}
+
+.door-label {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 1.4rem;
+  margin-bottom: 0.5rem;
+  color: var(--clr-text);
+  transition: color 0.3s ease;
+}
+
+.door-card:hover .door-label {
+  color: var(--clr-accent);
+}
+
+.door-teaser {
+  font-size: 0.85rem;
+  color: var(--clr-text-muted);
+  max-width: 220px;
+  margin: 0 auto;
+  line-height: 1.5;
+}
+
+/* ============================================================
+   ROOM OVERLAY
+   ============================================================ */
+.room-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(12, 11, 13, 0.0);
+  backdrop-filter: blur(0px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  transition: background 0.6s ease, backdrop-filter 0.6s ease;
+}
+
+.room-overlay.active {
+  background: rgba(12, 11, 13, 0.92);
+  backdrop-filter: blur(12px);
+  pointer-events: all;
+}
+
+.room-close {
+  position: absolute;
+  top: 2rem;
+  right: 2.5rem;
+  background: none;
+  border: none;
+  color: var(--clr-text-muted);
+  font-size: 2rem;
+  cursor: pointer;
+  transition: color 0.3s ease, transform 0.3s ease;
+  z-index: 1001;
+  opacity: 0;
+  transition: opacity 0.4s ease 0.3s, color 0.3s ease, transform 0.3s ease;
+}
+
+.room-overlay.active .room-close {
+  opacity: 1;
+}
+
+.room-close:hover {
+  color: var(--clr-accent);
+  transform: rotate(90deg);
+}
+
+.room-content {
+  max-width: 640px;
+  padding: 2rem;
+  text-align: center;
+}
+
+.room {
+  display: none;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s ease 0.2s, transform 0.5s ease 0.2s;
+}
+
+.room.active {
+  display: block;
+}
+
+.room.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.room h2 {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: 2.5rem;
+  margin-bottom: 2rem;
+  color: var(--clr-accent);
+}
+
+.room-body {
+  font-size: 1rem;
+  line-height: 1.8;
+  color: var(--clr-text);
+  margin-bottom: 1.5rem;
+}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+.site-footer {
+  text-align: center;
+  padding: 3rem 2rem;
+  font-size: 0.75rem;
+  color: var(--clr-text-muted);
+  letter-spacing: 0.1em;
+  background: var(--clr-bg);
+}
+
+/* ============================================================
+   BODY LOCKED (when overlay open)
+   ============================================================ */
+body.locked {
+  overflow: hidden;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 600px) {
+  .doors-container {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+  }
+
+  .door-frame {
+    width: 110px;
+    height: 175px;
+  }
+
+  .room-content {
+    padding: 1.5rem;
+  }
+
+  .room h2 {
+    font-size: 2rem;
+  }
+}

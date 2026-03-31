@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Never Let Me Go — Hailsham</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Inter:wght@300;400&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <!-- ===== WELCOME SCREEN ===== -->
+  <section id="welcome" class="welcome-section">
+    <div class="fog fog--left"></div>
+    <div class="fog fog--right"></div>
+    <div class="welcome-content">
+      <p class="welcome-subtitle">you are now entering</p>
+      <h1 class="welcome-title">Hailsham</h1>
+      <p class="welcome-hint">scroll to enter</p>
+      <div class="scroll-arrow">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M12 5v14M5 12l7 7 7-7"/>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== HALLWAY / DOORS ===== -->
+  <section id="hallway" class="hallway-section">
+    <div class="hallway-intro">
+      <h2 class="hallway-heading">Choose a corridor</h2>
+      <p class="hallway-subtext">Each door holds a piece of the story. Click one to step inside.</p>
+    </div>
+
+    <div class="doors-container">
+
+      <div class="door-card" data-door="memories">
+        <div class="door-frame">
+          <div class="door-surface">
+            <div class="door-knob"></div>
+          </div>
+        </div>
+        <h3 class="door-label">Memories</h3>
+        <p class="door-teaser">The art galleries, the guardians, the stories we told ourselves.</p>
+      </div>
+
+      <div class="door-card" data-door="relationships">
+        <div class="door-frame">
+          <div class="door-surface">
+            <div class="door-knob"></div>
+          </div>
+        </div>
+        <h3 class="door-label">Relationships</h3>
+        <p class="door-teaser">Kathy, Tommy, and Ruth — tangled in love and loss.</p>
+      </div>
+
+      <div class="door-card" data-door="truth">
+        <div class="door-frame">
+          <div class="door-surface">
+            <div class="door-knob"></div>
+          </div>
+        </div>
+        <h3 class="door-label">The Truth</h3>
+        <p class="door-teaser">What they were made for. What completion really means.</p>
+      </div>
+
+      <div class="door-card" data-door="soul">
+        <div class="door-frame">
+          <div class="door-surface">
+            <div class="door-knob"></div>
+          </div>
+        </div>
+        <h3 class="door-label">The Soul</h3>
+        <p class="door-teaser">Do they have one? Does it matter?</p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ===== ROOM OVERLAYS ===== -->
+  <div id="room-overlay" class="room-overlay">
+    <button class="room-close" aria-label="Close">&times;</button>
+    <div class="room-content">
+
+      <div class="room" data-room="memories">
+        <h2>Memories</h2>
+        <p class="room-body">
+          Placeholder text about memories at Hailsham. The sprawling grounds, the
+          teachers they called guardians, the art exchanges, and the creeping sense
+          that something was being hidden. Lorem ipsum dolor sit amet, consectetur
+          adipiscing elit. Vestibulum at lacus nulla. Sed consequat felis sit amet
+          turpis tincidunt, non blandit risus malesuada.
+        </p>
+        <p class="room-body">
+          Praesent euismod velit in sapien suscipit, in cursus nulla viverra. Donec
+          ac urna vitae dolor gravida fermentum. Integer consequat magna eu nisl
+          dapibus, a tincidunt lectus vestibulum.
+        </p>
+      </div>
+
+      <div class="room" data-room="relationships">
+        <h2>Relationships</h2>
+        <p class="room-body">
+          Placeholder text about the relationships in Never Let Me Go. Kathy H. as
+          narrator, her quiet devotion to Tommy, Ruth's possessiveness, and the
+          love triangle that never fully resolves. Lorem ipsum dolor sit amet,
+          consectetur adipiscing elit. Morbi scelerisque nunc a lectus feugiat
+          fermentum.
+        </p>
+        <p class="room-body">
+          Fusce sit amet tortor a mauris feugiat accumsan. Cras posuere eros in
+          velit congue, a fringilla libero posuere. Nulla facilisi. Phasellus ut
+          turpis sed purus aliquam placerat.
+        </p>
+      </div>
+
+      <div class="room" data-room="truth">
+        <h2>The Truth</h2>
+        <p class="room-body">
+          Placeholder text about the revelation — the students are clones, raised
+          for organ donation. The concept of "completion" as a euphemism for death.
+          How the truth seeps in slowly rather than arriving as a single shock.
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+        </p>
+        <p class="room-body">
+          Aliquam erat volutpat. Sed tincidunt eros sit amet purus elementum, vel
+          venenatis orci bibendum. Vivamus sed ligula in odio faucibus ultrices
+          eget non sapien.
+        </p>
+      </div>
+
+      <div class="room" data-room="soul">
+        <h2>The Soul</h2>
+        <p class="room-body">
+          Placeholder text exploring the central question: do the clones have
+          souls? Madame's gallery, the art as proof of interiority, and what it
+          means to prove your humanity to those who refuse to see it. Lorem ipsum
+          dolor sit amet, consectetur adipiscing elit.
+        </p>
+        <p class="room-body">
+          Curabitur interdum neque ut nisi ullamcorper, a facilisis tortor
+          ultricies. Etiam vel augue ut est blandit lacinia. Proin lacinia massa
+          vel ante sagittis, sit amet elementum erat faucibus.
+        </p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="site-footer">
+    <p>&copy; 2026 — Never Let Me Go Project</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
