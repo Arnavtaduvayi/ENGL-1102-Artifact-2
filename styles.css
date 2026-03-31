@@ -465,6 +465,126 @@ body {
 }
 
 /* ============================================================
+   SITE NAV
+   ============================================================ */
+.site-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 900;
+  display: flex;
+  justify-content: flex-end;
+  gap: 2rem;
+  padding: 1.5rem 2.5rem;
+  pointer-events: none;
+}
+
+.nav-link {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 400;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--clr-text-muted);
+  pointer-events: all;
+  position: relative;
+  padding-bottom: 4px;
+  transition: color 0.3s ease;
+}
+
+.nav-link::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: var(--clr-accent);
+  transition: width 0.3s ease;
+}
+
+.nav-link:hover,
+.nav-link.active {
+  color: var(--clr-text);
+}
+
+.nav-link:hover::after,
+.nav-link.active::after {
+  width: 100%;
+}
+
+/* ============================================================
+   ABOUT PAGE
+   ============================================================ */
+.about-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 50vh;
+  min-height: 320px;
+  background: radial-gradient(ellipse at 50% 60%, #1f1c18 0%, var(--clr-bg) 70%);
+  text-align: center;
+  padding: 6rem 2rem 2rem;
+}
+
+.about-hero-title {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  color: var(--clr-text);
+  letter-spacing: 0.04em;
+  animation: fadeInUp 1.5s ease-out;
+}
+
+.about-hero-line {
+  width: 60px;
+  height: 1px;
+  background: var(--clr-accent);
+  margin-top: 2rem;
+  animation: fadeIn 1.5s ease-out 0.5s both;
+}
+
+.about-main {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 4rem 2rem 6rem;
+}
+
+.about-block {
+  margin-bottom: 4rem;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.about-block.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.about-block h2 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 1.8rem;
+  color: var(--clr-accent);
+  margin-bottom: 1.25rem;
+}
+
+.about-block p {
+  font-size: 1rem;
+  line-height: 1.9;
+  color: var(--clr-text);
+  margin-bottom: 1rem;
+}
+
+.about-block p:last-child {
+  margin-bottom: 0;
+}
+
+/* ============================================================
    FOOTER
    ============================================================ */
 .site-footer {

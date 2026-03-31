@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About — Never Let Me Go</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Inter:wght@300;400&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <!-- ===== NAV ===== -->
+  <nav class="site-nav">
+    <a href="index.html" class="nav-link">Home</a>
+    <a href="about.html" class="nav-link active">About</a>
+  </nav>
+
+  <!-- ===== ABOUT HERO ===== -->
+  <header class="about-hero">
+    <h1 class="about-hero-title">About This Project</h1>
+    <div class="about-hero-line"></div>
+  </header>
+
+  <!-- ===== ABOUT CONTENT ===== -->
+  <main class="about-main">
+
+    <section class="about-block about-block--reveal">
+      <h2>The Film</h2>
+      <p>
+        <em>Never Let Me Go</em> (2010), directed by Mark Romanek and based on
+        Kazuo Ishiguro's 2005 novel, follows three young people — Kathy, Tommy,
+        and Ruth — who grow up at Hailsham, an idyllic English boarding school
+        that harbors a devastating secret about their purpose in the world.
+      </p>
+      <p>
+        Placeholder text. Lorem ipsum dolor sit amet, consectetur adipiscing
+        elit. Vestibulum at lacus nulla. Sed consequat felis sit amet turpis
+        tincidunt, non blandit risus malesuada. Praesent euismod velit in sapien
+        suscipit, in cursus nulla viverra.
+      </p>
+    </section>
+
+    <section class="about-block about-block--reveal">
+      <h2>The Project</h2>
+      <p>
+        This website was created as an artifact for ENGL 1102. It uses the
+        metaphor of Hailsham's corridors and locked doors to explore key themes
+        from the film: memory, relationships, truth, and the soul.
+      </p>
+      <p>
+        Placeholder text. Donec ac urna vitae dolor gravida fermentum. Integer
+        consequat magna eu nisl dapibus, a tincidunt lectus vestibulum. Morbi
+        scelerisque nunc a lectus feugiat fermentum. Fusce sit amet tortor a
+        mauris feugiat accumsan.
+      </p>
+    </section>
+
+    <section class="about-block about-block--reveal">
+      <h2>Why It Matters</h2>
+      <p>
+        At its core, <em>Never Let Me Go</em> asks what it means to be human —
+        and whether that question can ever be answered by those who have already
+        decided you are not. The students of Hailsham live full inner lives, yet
+        the world around them refuses to look.
+      </p>
+      <p>
+        Placeholder text. Aliquam erat volutpat. Sed tincidunt eros sit amet
+        purus elementum, vel venenatis orci bibendum. Vivamus sed ligula in odio
+        faucibus ultrices eget non sapien. Curabitur interdum neque ut nisi
+        ullamcorper, a facilisis tortor ultricies.
+      </p>
+    </section>
+
+    <section class="about-block about-block--reveal">
+      <h2>Credits</h2>
+      <p>
+        Placeholder for credits, sources, and acknowledgements. Etiam vel augue
+        ut est blandit lacinia. Proin lacinia massa vel ante sagittis, sit amet
+        elementum erat faucibus.
+      </p>
+    </section>
+
+  </main>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="site-footer">
+    <p>&copy; 2026 — Never Let Me Go Project</p>
+  </footer>
+
+  <script>
+    (() => {
+      const blocks = document.querySelectorAll(".about-block--reveal");
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("visible");
+              observer.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: 0.15 }
+      );
+      blocks.forEach((el) => observer.observe(el));
+    })();
+  </script>
+</body>
+</html>
