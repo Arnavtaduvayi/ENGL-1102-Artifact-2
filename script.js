@@ -21,46 +21,138 @@
   const revealTargets = document.querySelectorAll(".hallway-intro, .door-card");
 
   /* --------------------------------------------------
-     Cursor glow + secret message reveal
+     Cached layout values (avoid per-frame reads)
+     -------------------------------------------------- */
+  let cachedVh        = window.innerHeight;
+  let cachedHeroH     = heroSection  ? heroSection.offsetHeight  : 0;
+  let cachedEntTop    = entranceSection ? entranceSection.offsetTop    : 0;
+  let cachedEntH      = entranceSection ? entranceSection.offsetHeight : 0;
+  let cachedHeroTop   = heroSection  ? heroSection.getBoundingClientRect().top + window.scrollY : 0;
+
+  function recacheLayout() {
+    cachedVh      = window.innerHeight;
+    cachedHeroH   = heroSection  ? heroSection.offsetHeight  : 0;
+    cachedEntTop  = entranceSection ? entranceSection.offsetTop    : 0;
+    cachedEntH    = entranceSection ? entranceSection.offsetHeight : 0;
+    cachedHeroTop = heroSection  ? heroSection.getBoundingClientRect().top + window.scrollY : 0;
+  }
+
+  let resizeTimer;
+  window.addEventListener("resize", () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(recacheLayout, 150);
+  }, { passive: true });
+
+  /* --------------------------------------------------
+     Unified animation loop
      -------------------------------------------------- */
   let mouseX = -300, mouseY = -300;
   let glowX  = -300, glowY  = -300;
-  let glowActive = false;
+  let glowVisible = false;
+  let frameScheduled = false;
+  let prevHeroPast = false;
 
-  document.addEventListener("mousemove", (e) => {
-    mouseX = e.clientX;
-    mouseY = e.clientY;
+  function scheduleFrame() {
+    if (!frameScheduled) {
+      frameScheduled = true;
+      requestAnimationFrame(tick);
+    }
+  }
 
-    if (!glowActive) {
-      glowActive = true;
-      cursorGlow.classList.add("active");
-      requestAnimationFrame(animateGlow);
+  function tick() {
+    frameScheduled = false;
+    const scrollY = window.scrollY;
+
+    // --- Cursor glow (GPU transform) ---
+    if (glowVisible) {
+      glowX += (mouseX - glowX) * 0.18;
+      glowY += (mouseY - glowY) * 0.18;
+      cursorGlow.style.transform =
+        `translate3d(${glowX - 150}px, ${glowY - 150}px, 0)`;
+      scheduleFrame();
     }
 
-    // Update secret layer mask position relative to hero section
-    if (secretLayer) {
-      const heroRect = heroSection.getBoundingClientRect();
-      const relX = e.clientX - heroRect.left;
-      const relY = e.clientY - heroRect.top;
+    // --- Secret layer mask ---
+    if (secretLayer && glowVisible) {
+      const relX = mouseX;
+      const relY = mouseY + scrollY - cachedHeroTop;
       secretLayer.style.setProperty("--mx", relX + "px");
       secretLayer.style.setProperty("--my", relY + "px");
     }
-  });
+
+    // --- Hero parallax ---
+    if (heroSection) {
+      const progress = Math.min(Math.max(scrollY / (cachedHeroH - cachedVh), 0), 1);
+
+      heroImage.style.transform = `scale(${1 + progress * 0.6})`;
+      heroVignette.style.opacity = progress;
+
+      const textProg = Math.min(scrollY / (cachedVh * 0.4), 1);
+      heroText.style.opacity = 1 - textProg;
+      heroText.style.transform = `translateY(${textProg * -50}px)`;
+
+      fogEls.forEach((f) => { f.style.opacity = 0.5 * (1 - progress); });
+
+      const pastHero = scrollY >= cachedHeroH - cachedVh;
+      if (pastHero !== prevHeroPast) {
+        prevHeroPast = pastHero;
+        const d = pastHero ? "none" : "";
+        heroVignette.style.display = d;
+        heroText.style.display     = d;
+        fogEls.forEach((f) => { f.style.display = d; });
+      }
+    }
+
+    // --- Entrance gates ---
+    if (entranceSection) {
+      const start = cachedEntTop - cachedVh;
+      const end   = cachedEntTop + cachedEntH * 0.6;
+
+      if (scrollY >= start && scrollY <= cachedEntTop + cachedEntH) {
+        const progress = Math.min(Math.max(
+          (scrollY - start) / (end - start), 0), 1);
+
+        const g = progress * 100;
+        gateLeft.style.transform  = `translateX(-${g}%)`;
+        gateRight.style.transform = `translateX(${g}%)`;
+
+        const bdr = Math.max(1 - progress * 2, 0);
+        gateLeft.style.borderColor  = `rgba(138,127,114,${bdr})`;
+        gateRight.style.borderColor = `rgba(138,127,114,${bdr})`;
+
+        let tOp = 0;
+        if (progress > 0.3 && progress <= 0.65) {
+          tOp = (progress - 0.3) / 0.35;
+        } else if (progress > 0.65) {
+          tOp = 1 - (progress - 0.65) / 0.35;
+        }
+        entranceText.style.opacity = Math.max(tOp, 0);
+      }
+    }
+  }
+
+  /* --------------------------------------------------
+     Event listeners (lightweight — just store values)
+     -------------------------------------------------- */
+  document.addEventListener("mousemove", (e) => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+    if (!glowVisible) {
+      glowVisible = true;
+      cursorGlow.classList.add("active");
+    }
+    scheduleFrame();
+  }, { passive: true });
 
   document.addEventListener("mouseleave", () => {
-    glowActive = false;
+    glowVisible = false;
     cursorGlow.classList.remove("active");
   });
 
-  function animateGlow() {
-    if (!glowActive) return;
-    // Smooth lerp for buttery movement
-    glowX += (mouseX - glowX) * 0.15;
-    glowY += (mouseY - glowY) * 0.15;
-    cursorGlow.style.left = glowX + "px";
-    cursorGlow.style.top  = glowY + "px";
-    requestAnimationFrame(animateGlow);
-  }
+  window.addEventListener("scroll", scheduleFrame, { passive: true });
+
+  // Initial frame
+  scheduleFrame();
 
   /* --------------------------------------------------
      Scroll-triggered reveal (Intersection Observer)
@@ -78,88 +170,6 @@
   );
 
   revealTargets.forEach((el) => revealObserver.observe(el));
-
-  /* --------------------------------------------------
-     Scroll-driven hero + entrance animation
-     -------------------------------------------------- */
-  let ticking = false;
-
-  window.addEventListener("scroll", () => {
-    if (!ticking) {
-      requestAnimationFrame(onScroll);
-      ticking = true;
-    }
-  }, { passive: true });
-
-  function onScroll() {
-    ticking = false;
-    const scrollY = window.scrollY;
-    const vh = window.innerHeight;
-
-    animateHero(scrollY, vh);
-    animateEntrance(scrollY, vh);
-  }
-
-  function animateHero(scrollY, vh) {
-    const heroH = heroSection.offsetHeight;
-    const progress = Math.min(Math.max(scrollY / (heroH - vh), 0), 1);
-
-    // Image zooms from 1 → 1.6 as you scroll through hero
-    const scale = 1 + progress * 0.6;
-    heroImage.style.transform = `scale(${scale})`;
-
-    // Vignette darkens 0 → 1
-    heroVignette.style.opacity = progress;
-
-    // Text fades out and drifts up in the first 40% of scroll
-    const textProgress = Math.min(scrollY / (vh * 0.4), 1);
-    heroText.style.opacity = 1 - textProgress;
-    heroText.style.transform = `translateY(${textProgress * -50}px)`;
-
-    // Fog fades out as you approach
-    fogEls.forEach((f) => {
-      f.style.opacity = 0.5 * (1 - progress);
-    });
-
-    // Hide fixed elements once hero is fully scrolled past
-    const pastHero = scrollY >= heroH - vh;
-    heroVignette.style.display  = pastHero ? "none" : "";
-    heroText.style.display      = pastHero ? "none" : "";
-    fogEls.forEach((f) => f.style.display = pastHero ? "none" : "");
-  }
-
-  function animateEntrance(scrollY, vh) {
-    const entranceTop = entranceSection.offsetTop;
-    const entranceH   = entranceSection.offsetHeight;
-    const start = entranceTop - vh;
-    const end   = entranceTop + entranceH * 0.6;
-
-    if (scrollY < start || scrollY > entranceTop + entranceH) return;
-
-    const progress = Math.min(Math.max((scrollY - start) / (end - start), 0), 1);
-
-    // Gates open: translate from 0% (closed) to -100%/100% (open)
-    const gateOffset = progress * 100;
-    gateLeft.style.transform  = `translateX(-${gateOffset}%)`;
-    gateRight.style.transform = `translateX(${gateOffset}%)`;
-
-    // Fade border as gates open
-    const borderOpacity = Math.max(1 - progress * 2, 0);
-    gateLeft.style.borderColor  = `rgba(138,127,114,${borderOpacity})`;
-    gateRight.style.borderColor = `rgba(138,127,114,${borderOpacity})`;
-
-    // Whisper text fades in at 30-60% and out at 70-100%
-    let textOpacity = 0;
-    if (progress > 0.3 && progress <= 0.65) {
-      textOpacity = (progress - 0.3) / 0.35;
-    } else if (progress > 0.65) {
-      textOpacity = 1 - (progress - 0.65) / 0.35;
-    }
-    entranceText.style.opacity = Math.max(textOpacity, 0);
-  }
-
-  // Run once on load
-  onScroll();
 
   /* --------------------------------------------------
      Door click → open room overlay

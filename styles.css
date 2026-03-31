@@ -41,6 +41,8 @@ body {
    ============================================================ */
 .cursor-glow {
   position: fixed;
+  top: 0;
+  left: 0;
   width: 300px;
   height: 300px;
   border-radius: 50%;
@@ -52,11 +54,11 @@ body {
     rgba(201, 169, 110, 0.05) 35%,
     transparent 70%
   );
-  transform: translate(-50%, -50%);
   opacity: 0;
   transition: opacity 0.4s ease;
   mix-blend-mode: screen;
-  will-change: left, top;
+  will-change: transform;
+  transform: translate3d(-300px, -300px, 0);
 }
 
 .cursor-glow.active {
