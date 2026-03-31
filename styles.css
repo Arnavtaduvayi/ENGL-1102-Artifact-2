@@ -37,37 +37,68 @@ body {
 }
 
 /* ============================================================
-   WELCOME SECTION
+   HERO SECTION — OUTSIDE HAILSHAM
    ============================================================ */
-.welcome-section {
+.hero-section {
   position: relative;
+  height: 200vh;
+  overflow: visible;
+}
+
+.hero-image-wrap {
+  position: sticky;
+  top: 0;
+  width: 100%;
   height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: radial-gradient(ellipse at 50% 40%, #1f1c18 0%, var(--clr-bg) 70%);
   overflow: hidden;
+  will-change: transform;
+}
+
+.hero-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 30%;
+  transform: scale(1);
+  transition: none;
+  will-change: transform;
+  filter: brightness(0.55) saturate(0.7);
+}
+
+.hero-vignette {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 2;
+  opacity: 0;
+  background: radial-gradient(ellipse at center, transparent 20%, var(--clr-bg) 75%);
+  will-change: opacity;
 }
 
 /* Fog layers */
 .fog {
-  position: absolute;
+  position: fixed;
   top: 0;
   width: 60%;
-  height: 100%;
+  height: 100vh;
   pointer-events: none;
-  opacity: 0.4;
+  opacity: 0.5;
+  z-index: 3;
 }
 
 .fog--left {
   left: -10%;
-  background: linear-gradient(90deg, rgba(200,185,160,0.08), transparent);
+  background: linear-gradient(90deg, rgba(200,185,160,0.1), transparent);
   animation: fogDrift 18s ease-in-out infinite alternate;
 }
 
 .fog--right {
   right: -10%;
-  background: linear-gradient(-90deg, rgba(200,185,160,0.08), transparent);
+  background: linear-gradient(-90deg, rgba(200,185,160,0.1), transparent);
   animation: fogDrift 22s ease-in-out infinite alternate-reverse;
 }
 
@@ -76,38 +107,50 @@ body {
   100% { transform: translateX(30px) scaleX(1.1); }
 }
 
-.welcome-content {
-  text-align: center;
-  z-index: 1;
+.hero-text {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 4;
+  pointer-events: none;
+  will-change: opacity, transform;
   animation: fadeInUp 2s ease-out;
 }
 
-.welcome-subtitle {
+.hero-subtitle {
   font-family: var(--font-body);
   font-size: 0.85rem;
   letter-spacing: 0.35em;
   text-transform: uppercase;
   color: var(--clr-text-muted);
   margin-bottom: 1rem;
+  text-shadow: 0 2px 20px rgba(0,0,0,0.7);
 }
 
-.welcome-title {
+.hero-title {
   font-family: var(--font-display);
   font-weight: 300;
   font-size: clamp(3.5rem, 10vw, 8rem);
   letter-spacing: 0.06em;
   color: var(--clr-text);
-  text-shadow: 0 0 60px rgba(201, 169, 110, 0.15);
+  text-shadow: 0 0 60px rgba(201, 169, 110, 0.2), 0 4px 30px rgba(0,0,0,0.6);
   margin-bottom: 2.5rem;
 }
 
-.welcome-hint {
+.hero-hint {
   font-size: 0.75rem;
   letter-spacing: 0.3em;
   text-transform: uppercase;
   color: var(--clr-text-muted);
   opacity: 0;
   animation: fadeIn 1.5s ease-out 2s forwards;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.6);
 }
 
 .scroll-arrow {
@@ -130,6 +173,77 @@ body {
 @keyframes bob {
   0%, 100% { transform: translateY(0); }
   50%      { transform: translateY(8px); }
+}
+
+/* ============================================================
+   ENTRANCE TRANSITION — WALKING THROUGH THE GATES
+   ============================================================ */
+.entrance-section {
+  position: relative;
+  height: 100vh;
+  background: var(--clr-bg);
+  overflow: hidden;
+  z-index: 5;
+}
+
+.entrance-gate {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.gate-left,
+.gate-right {
+  position: absolute;
+  top: -5%;
+  width: 52%;
+  height: 110%;
+  background: var(--clr-bg);
+  transition: none;
+  will-change: transform;
+}
+
+.gate-left {
+  left: 0;
+  transform-origin: left center;
+  border-right: 2px solid var(--clr-text-muted);
+  transform: translateX(0);
+}
+
+.gate-right {
+  right: 0;
+  transform-origin: right center;
+  border-left: 2px solid var(--clr-text-muted);
+  transform: translateX(0);
+}
+
+.entrance-text {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  opacity: 0;
+  will-change: opacity;
+}
+
+.entrance-whisper {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(1.2rem, 3vw, 2rem);
+  color: var(--clr-text-muted);
+  letter-spacing: 0.04em;
+  text-align: center;
+  padding: 0 2rem;
 }
 
 /* ============================================================
