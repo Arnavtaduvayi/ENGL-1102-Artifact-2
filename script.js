@@ -15,7 +15,52 @@
   const gateRight       = document.querySelector(".gate-right");
   const entranceText    = document.querySelector(".entrance-text");
 
+  const cursorGlow  = document.getElementById("cursor-glow");
+  const secretLayer = document.getElementById("secret-layer");
+
   const revealTargets = document.querySelectorAll(".hallway-intro, .door-card");
+
+  /* --------------------------------------------------
+     Cursor glow + secret message reveal
+     -------------------------------------------------- */
+  let mouseX = -300, mouseY = -300;
+  let glowX  = -300, glowY  = -300;
+  let glowActive = false;
+
+  document.addEventListener("mousemove", (e) => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+
+    if (!glowActive) {
+      glowActive = true;
+      cursorGlow.classList.add("active");
+      requestAnimationFrame(animateGlow);
+    }
+
+    // Update secret layer mask position relative to hero section
+    if (secretLayer) {
+      const heroRect = heroSection.getBoundingClientRect();
+      const relX = e.clientX - heroRect.left;
+      const relY = e.clientY - heroRect.top;
+      secretLayer.style.setProperty("--mx", relX + "px");
+      secretLayer.style.setProperty("--my", relY + "px");
+    }
+  });
+
+  document.addEventListener("mouseleave", () => {
+    glowActive = false;
+    cursorGlow.classList.remove("active");
+  });
+
+  function animateGlow() {
+    if (!glowActive) return;
+    // Smooth lerp for buttery movement
+    glowX += (mouseX - glowX) * 0.15;
+    glowY += (mouseY - glowY) * 0.15;
+    cursorGlow.style.left = glowX + "px";
+    cursorGlow.style.top  = glowY + "px";
+    requestAnimationFrame(animateGlow);
+  }
 
   /* --------------------------------------------------
      Scroll-triggered reveal (Intersection Observer)
