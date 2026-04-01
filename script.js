@@ -83,7 +83,7 @@
       dotY  += (mouseY - dotY)  * DOT_EASE;
 
       cursorGlow.style.transform =
-        `translate3d(${glowX - 210}px, ${glowY - 210}px, 0)`;
+        `translate3d(${glowX - 110}px, ${glowY - 110}px, 0)`;
       cursorDot.style.transform =
         `translate3d(${dotX - 3}px, ${dotY - 3}px, 0)`;
 
@@ -182,21 +182,25 @@
       cursorDot.classList.add("active");
     }
 
-    // Dismiss hint after first movement
-    if (!hintDismissed && hoverHint) {
-      hintDismissed = true;
-      setTimeout(() => hoverHint.classList.add("hidden"), 1500);
-    }
-
-    // Dismiss beacon once cursor gets near it
-    if (!beaconDismissed && beacon) {
-      const bRect = beacon.getBoundingClientRect();
-      const bx = bRect.left + bRect.width / 2;
-      const by = bRect.top + bRect.height / 2;
-      const dist = Math.hypot(e.clientX - bx, e.clientY - by);
-      if (dist < 200) {
-        beaconDismissed = true;
-        beacon.classList.add("hidden");
+    // Dismiss hint + beacon once cursor gets near any secret message
+    if ((!hintDismissed || !beaconDismissed) && secretLayer) {
+      const msgs = secretLayer.querySelectorAll(".secret-msg");
+      for (const msg of msgs) {
+        const r = msg.getBoundingClientRect();
+        const cx = r.left + r.width / 2;
+        const cy = r.top + r.height / 2;
+        const dist = Math.hypot(e.clientX - cx, e.clientY - cy);
+        if (dist < 180) {
+          if (!hintDismissed && hoverHint) {
+            hintDismissed = true;
+            hoverHint.classList.add("hidden");
+          }
+          if (!beaconDismissed && beacon) {
+            beaconDismissed = true;
+            beacon.classList.add("hidden");
+          }
+          break;
+        }
       }
     }
 
@@ -242,14 +246,15 @@
     card.addEventListener("click", () => {
       const key = card.dataset.door;
 
-      // Zoom animation on the card
-      card.classList.add("zooming");
+      // Door swings open with light burst
+      card.classList.add("clicked");
 
-      // After zoom finishes, open room
+      // After door opens, show room
       setTimeout(() => {
-        card.classList.remove("zooming");
         openRoom(key);
-      }, 700);
+        // Reset door after overlay is up
+        setTimeout(() => card.classList.remove("clicked"), 400);
+      }, 500);
     });
   });
 

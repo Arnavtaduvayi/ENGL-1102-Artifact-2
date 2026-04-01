@@ -45,16 +45,15 @@ body {
   position: fixed;
   top: 0;
   left: 0;
-  width: 420px;
-  height: 420px;
+  width: 220px;
+  height: 220px;
   border-radius: 50%;
   pointer-events: none;
   z-index: 9999;
   background: radial-gradient(
     circle at center,
-    rgba(255, 230, 170, 0.30) 0%,
-    rgba(201, 169, 110, 0.15) 25%,
-    rgba(201, 169, 110, 0.05) 50%,
+    rgba(255, 230, 170, 0.25) 0%,
+    rgba(201, 169, 110, 0.10) 35%,
     transparent 70%
   );
   opacity: 0;
@@ -99,14 +98,15 @@ body {
   transform: translateX(-50%);
   z-index: 7;
   font-family: var(--font-body);
-  font-size: 0.75rem;
-  letter-spacing: 0.25em;
+  font-size: 0.8rem;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--clr-text-muted);
+  color: var(--clr-text);
   pointer-events: none;
   opacity: 0;
-  animation: hintPulse 4s ease-in-out 3s forwards;
-  transition: opacity 1.2s ease;
+  animation: hintPulse 3s ease-in-out 2.5s infinite;
+  text-shadow: 0 0 20px rgba(201, 169, 110, 0.3);
+  transition: opacity 1.5s ease;
 }
 
 .hover-hint.hidden {
@@ -115,11 +115,9 @@ body {
 }
 
 @keyframes hintPulse {
-  0%   { opacity: 0; }
-  15%  { opacity: 0.8; }
-  50%  { opacity: 0.5; }
-  85%  { opacity: 0.8; }
-  100% { opacity: 0.6; }
+  0%   { opacity: 0.4; }
+  50%  { opacity: 0.9; }
+  100% { opacity: 0.4; }
 }
 
 /* Pulsing beacon to guide cursor */
@@ -234,11 +232,11 @@ body {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center 30%;
+  object-position: center 40%;
   transform: scale(1);
   transition: none;
   will-change: transform;
-  filter: brightness(0.45) saturate(0.6);
+  filter: brightness(0.38) saturate(0.5);
 }
 
 .hero-vignette {
@@ -627,17 +625,29 @@ body {
   color: var(--clr-text);
 }
 
-/* Click zoom animation */
-.door-card.zooming {
-  animation: doorZoom 0.8s cubic-bezier(0.4, 0, 0, 1) forwards;
-  z-index: 100;
-  position: relative;
+/* Click flash effect — light bursts from behind the door */
+.door-card.clicked .door-frame {
+  box-shadow:
+    0 0 60px rgba(255, 240, 200, 0.3),
+    0 0 120px rgba(201, 169, 110, 0.15);
+  border-color: rgba(255, 240, 200, 0.6);
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
 }
 
-@keyframes doorZoom {
-  0%   { transform: scale(1); opacity: 1; }
-  60%  { transform: scale(1.3); opacity: 1; }
-  100% { transform: scale(3); opacity: 0; }
+.door-card.clicked .door-surface {
+  transform: perspective(800px) rotateY(-70deg);
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.door-card.clicked .door-light {
+  opacity: 1;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 240, 200, 0.0) 0%,
+    rgba(255, 240, 200, 0.25) 40%,
+    rgba(255, 255, 230, 0.4) 100%
+  );
+  transition: opacity 0.3s ease, background 0.3s ease;
 }
 
 /* ============================================================

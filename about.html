@@ -17,6 +17,10 @@
     <a href="about.html" class="nav-link active">About</a>
   </nav>
 
+  <!-- ===== CUSTOM CURSOR ===== -->
+  <div id="cursor-glow" class="cursor-glow"></div>
+  <div id="cursor-dot" class="cursor-dot"></div>
+
   <!-- ===== ABOUT HERO ===== -->
   <header class="about-hero">
     <h1 class="about-hero-title">About This Project</h1>
@@ -91,6 +95,7 @@
 
   <script>
     (() => {
+      /* Scroll reveals */
       const blocks = document.querySelectorAll(".about-block--reveal");
       const observer = new IntersectionObserver(
         (entries) => {
@@ -104,6 +109,38 @@
         { threshold: 0.15 }
       );
       blocks.forEach((el) => observer.observe(el));
+
+      /* Custom cursor */
+      const glow = document.getElementById("cursor-glow");
+      const dot  = document.getElementById("cursor-dot");
+      if (!glow || !dot) return;
+
+      let mx = -500, my = -500, gx = -500, gy = -500, dx = -500, dy = -500;
+      let active = false, raf = false;
+
+      function tick() {
+        raf = false;
+        gx += (mx - gx) * 0.12;
+        gy += (my - gy) * 0.12;
+        dx += (mx - dx) * 0.25;
+        dy += (my - dy) * 0.25;
+        glow.style.transform = `translate3d(${gx - 110}px,${gy - 110}px,0)`;
+        dot.style.transform  = `translate3d(${dx - 3}px,${dy - 3}px,0)`;
+        if (Math.abs(mx - gx) > 0.5 || Math.abs(my - gy) > 0.5) {
+          raf = true;
+          requestAnimationFrame(tick);
+        }
+      }
+
+      document.addEventListener("mousemove", (e) => {
+        mx = e.clientX; my = e.clientY;
+        if (!active) { active = true; glow.classList.add("active"); dot.classList.add("active"); }
+        if (!raf) { raf = true; requestAnimationFrame(tick); }
+      }, { passive: true });
+
+      document.addEventListener("mouseleave", () => {
+        active = false; glow.classList.remove("active"); dot.classList.remove("active");
+      });
     })();
   </script>
 </body>
