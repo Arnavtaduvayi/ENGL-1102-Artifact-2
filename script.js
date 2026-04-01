@@ -7,7 +7,6 @@
   const heroSection   = document.getElementById("hero");
   const heroImage     = document.querySelector(".hero-image");
   const heroVignette  = document.querySelector(".hero-vignette");
-  const heroGrain     = document.querySelector(".hero-grain");
   const heroText      = document.querySelector(".hero-text");
   const fogEls        = document.querySelectorAll(".fog");
 
@@ -26,7 +25,7 @@
   const revealTargets = document.querySelectorAll(".hallway-intro, .door-card");
 
   /* --------------------------------------------------
-     Cached layout values (avoid per-frame reads)
+     Cached layout values (avoid per-frame DOM reads)
      -------------------------------------------------- */
   let cachedVh      = window.innerHeight;
   let cachedHeroH   = heroSection  ? heroSection.offsetHeight  : 0;
@@ -34,22 +33,46 @@
   let cachedEntH    = entranceSection ? entranceSection.offsetHeight : 0;
   let cachedHeroTop = heroSection  ? heroSection.getBoundingClientRect().top + window.scrollY : 0;
 
+  /* Pre-cache secret message positions once (no per-frame reflow) */
+  let cachedSecretPositions = [];
+  function cacheSecretPositions() {
+    if (!secretLayer) return;
+    cachedSecretPositions = [];
+    const msgs = secretLayer.querySelectorAll(".secret-msg");
+    const scrollY = window.scrollY;
+    for (const msg of msgs) {
+      const r = msg.getBoundingClientRect();
+      cachedSecretPositions.push({
+        x: r.left + r.width / 2 + scrollY * 0, // clientX-relative
+        y: r.top + r.height / 2,
+        absY: r.top + scrollY + r.height / 2    // absolute page Y
+      });
+    }
+  }
+
   function recacheLayout() {
     cachedVh      = window.innerHeight;
     cachedHeroH   = heroSection  ? heroSection.offsetHeight  : 0;
     cachedEntTop  = entranceSection ? entranceSection.offsetTop    : 0;
     cachedEntH    = entranceSection ? entranceSection.offsetHeight : 0;
     cachedHeroTop = heroSection  ? heroSection.getBoundingClientRect().top + window.scrollY : 0;
+    cacheSecretPositions();
   }
 
   let resizeTimer;
   window.addEventListener("resize", () => {
     clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(recacheLayout, 150);
+    resizeTimer = setTimeout(recacheLayout, 200);
   }, { passive: true });
 
+  // Initial cache after layout settles
+  requestAnimationFrame(() => {
+    recacheLayout();
+    cacheSecretPositions();
+  });
+
   /* --------------------------------------------------
-     Smooth cursor tracking
+     Cursor state
      -------------------------------------------------- */
   let mouseX = -500, mouseY = -500;
   let glowX  = -500, glowY  = -500;
@@ -57,9 +80,8 @@
   let glowVisible = false;
   let frameScheduled = false;
   let prevHeroPast = false;
-
-  const GLOW_EASE  = 0.12;  // softer, smoother follow
-  const DOT_EASE   = 0.25;  // dot tracks faster
+  let hintDismissed = false;
+  let beaconDismissed = false;
 
   function scheduleFrame() {
     if (!frameScheduled) {
@@ -69,60 +91,59 @@
   }
 
   /* --------------------------------------------------
-     Main animation loop
+     Main animation loop — only transforms, no reflows
      -------------------------------------------------- */
   function tick() {
     frameScheduled = false;
     const scrollY = window.scrollY;
+    let needsAnotherFrame = false;
 
-    /* --- Cursor glow (smooth follow) --- */
+    /* --- Cursor glow (GPU transform only) --- */
     if (glowVisible) {
-      glowX += (mouseX - glowX) * GLOW_EASE;
-      glowY += (mouseY - glowY) * GLOW_EASE;
-      dotX  += (mouseX - dotX)  * DOT_EASE;
-      dotY  += (mouseY - dotY)  * DOT_EASE;
+      glowX += (mouseX - glowX) * 0.15;
+      glowY += (mouseY - glowY) * 0.15;
+      dotX  += (mouseX - dotX)  * 0.35;
+      dotY  += (mouseY - dotY)  * 0.35;
 
       cursorGlow.style.transform =
         `translate3d(${glowX - 110}px, ${glowY - 110}px, 0)`;
       cursorDot.style.transform =
         `translate3d(${dotX - 3}px, ${dotY - 3}px, 0)`;
 
-      // Keep scheduling while cursor is moving (smooth convergence)
-      if (Math.abs(mouseX - glowX) > 0.5 || Math.abs(mouseY - glowY) > 0.5) {
-        scheduleFrame();
+      if (Math.abs(mouseX - glowX) > 0.3 || Math.abs(mouseY - glowY) > 0.3) {
+        needsAnotherFrame = true;
       }
     }
 
-    /* --- Secret layer flashlight mask --- */
+    /* --- Secret layer mask (CSS var update) --- */
     if (secretLayer && glowVisible) {
-      const relX = mouseX;
-      const relY = mouseY + scrollY - cachedHeroTop;
-      secretLayer.style.setProperty("--mx", relX + "px");
-      secretLayer.style.setProperty("--my", relY + "px");
+      secretLayer.style.setProperty("--mx", mouseX + "px");
+      secretLayer.style.setProperty("--my", (mouseY + scrollY - cachedHeroTop) + "px");
     }
 
     /* --- Hero parallax --- */
     if (heroSection) {
-      const progress = Math.min(Math.max(scrollY / (cachedHeroH - cachedVh), 0), 1);
+      const maxScroll = cachedHeroH - cachedVh;
+      if (maxScroll > 0) {
+        const progress = Math.min(scrollY / maxScroll, 1);
 
-      heroImage.style.transform = `scale(${1 + progress * 0.5})`;
-      heroVignette.style.opacity = progress;
+        heroImage.style.transform = `scale(${1 + progress * 0.5})`;
+        heroVignette.style.opacity = progress;
 
-      const textProg = Math.min(scrollY / (cachedVh * 0.35), 1);
-      heroText.style.opacity = 1 - textProg;
-      heroText.style.transform = `translateY(${textProg * -60}px)`;
+        const textProg = Math.min(scrollY / (cachedVh * 0.35), 1);
+        heroText.style.opacity = 1 - textProg;
+        heroText.style.transform = `translateY(${textProg * -60}px)`;
 
-      fogEls.forEach((f) => { f.style.opacity = 0.4 * (1 - progress); });
+        fogEls.forEach((f) => { f.style.opacity = 0.4 * (1 - progress); });
 
-      // Hide hero fixed elements when past hero
-      const pastHero = scrollY >= cachedHeroH - cachedVh;
-      if (pastHero !== prevHeroPast) {
-        prevHeroPast = pastHero;
-        const d = pastHero ? "none" : "";
-        heroVignette.style.display = d;
-        heroGrain.style.display    = d;
-        heroText.style.display     = d;
-        fogEls.forEach((f) => { f.style.display = d; });
+        const pastHero = progress >= 1;
+        if (pastHero !== prevHeroPast) {
+          prevHeroPast = pastHero;
+          const d = pastHero ? "none" : "";
+          heroVignette.style.display = d;
+          heroText.style.display     = d;
+          fogEls.forEach((f) => { f.style.display = d; });
+        }
       }
     }
 
@@ -132,46 +153,44 @@
       const end   = cachedEntTop + cachedEntH * 0.6;
 
       if (scrollY >= start && scrollY <= cachedEntTop + cachedEntH) {
-        const progress = Math.min(Math.max(
-          (scrollY - start) / (end - start), 0), 1);
+        const range = end - start;
+        if (range > 0) {
+          const progress = Math.min(Math.max((scrollY - start) / range, 0), 1);
 
-        const g = progress * 100;
-        gateLeft.style.transform  = `translateX(-${g}%)`;
-        gateRight.style.transform = `translateX(${g}%)`;
+          gateLeft.style.transform  = `translateX(-${progress * 100}%)`;
+          gateRight.style.transform = `translateX(${progress * 100}%)`;
 
-        const bdr = Math.max(1 - progress * 2, 0);
-        gateLeft.style.borderColor  = `rgba(138,127,114,${bdr * 0.4})`;
-        gateRight.style.borderColor = `rgba(138,127,114,${bdr * 0.4})`;
+          const bdr = Math.max(1 - progress * 2, 0);
+          gateLeft.style.borderColor  = `rgba(138,127,114,${bdr * 0.4})`;
+          gateRight.style.borderColor = `rgba(138,127,114,${bdr * 0.4})`;
 
-        // First whisper appears
-        let tOp = 0;
-        if (progress > 0.3 && progress <= 0.65) {
-          tOp = (progress - 0.3) / 0.35;
-        } else if (progress > 0.65) {
-          tOp = 1 - (progress - 0.65) / 0.35;
-        }
-        entranceText.style.opacity = Math.max(tOp, 0);
-
-        // Second whisper appears slightly delayed
-        if (whisper2) {
-          let w2 = 0;
-          if (progress > 0.45 && progress <= 0.7) {
-            w2 = (progress - 0.45) / 0.25;
-          } else if (progress > 0.7) {
-            w2 = 1 - (progress - 0.7) / 0.3;
+          let tOp = 0;
+          if (progress > 0.3 && progress <= 0.65) {
+            tOp = (progress - 0.3) / 0.35;
+          } else if (progress > 0.65) {
+            tOp = 1 - (progress - 0.65) / 0.35;
           }
-          whisper2.style.opacity = Math.max(w2, 0);
+          entranceText.style.opacity = Math.max(tOp, 0);
+
+          if (whisper2) {
+            let w2 = 0;
+            if (progress > 0.45 && progress <= 0.7) {
+              w2 = (progress - 0.45) / 0.25;
+            } else if (progress > 0.7) {
+              w2 = 1 - (progress - 0.7) / 0.3;
+            }
+            whisper2.style.opacity = Math.max(w2, 0);
+          }
         }
       }
     }
+
+    if (needsAnotherFrame) scheduleFrame();
   }
 
   /* --------------------------------------------------
-     Event listeners
+     Event listeners (lightweight — store values only)
      -------------------------------------------------- */
-  let hintDismissed = false;
-  let beaconDismissed = false;
-
   document.addEventListener("mousemove", (e) => {
     mouseX = e.clientX;
     mouseY = e.clientY;
@@ -182,14 +201,13 @@
       cursorDot.classList.add("active");
     }
 
-    // Dismiss hint + beacon once cursor gets near any secret message
-    if ((!hintDismissed || !beaconDismissed) && secretLayer) {
-      const msgs = secretLayer.querySelectorAll(".secret-msg");
-      for (const msg of msgs) {
-        const r = msg.getBoundingClientRect();
-        const cx = r.left + r.width / 2;
-        const cy = r.top + r.height / 2;
-        const dist = Math.hypot(e.clientX - cx, e.clientY - cy);
+    /* Check proximity to secrets using cached positions (no reflow) */
+    if (!hintDismissed || !beaconDismissed) {
+      const scrollY = window.scrollY;
+      for (const pos of cachedSecretPositions) {
+        // Convert absolute Y to viewport Y
+        const viewY = pos.absY - scrollY;
+        const dist = Math.hypot(e.clientX - pos.x, e.clientY - viewY);
         if (dist < 180) {
           if (!hintDismissed && hoverHint) {
             hintDismissed = true;
@@ -236,7 +254,7 @@
   revealTargets.forEach((el) => revealObserver.observe(el));
 
   /* --------------------------------------------------
-     Door click → zoom animation → open room overlay
+     Door click → open room overlay
      -------------------------------------------------- */
   const overlay  = document.getElementById("room-overlay");
   const rooms    = document.querySelectorAll(".room");
@@ -252,9 +270,8 @@
       // After door opens, show room
       setTimeout(() => {
         openRoom(key);
-        // Reset door after overlay is up
-        setTimeout(() => card.classList.remove("clicked"), 400);
-      }, 500);
+        setTimeout(() => card.classList.remove("clicked"), 300);
+      }, 450);
     });
   });
 
@@ -279,7 +296,7 @@
     overlay.classList.remove("active");
     document.body.classList.remove("locked");
     rooms.forEach((r) => r.classList.remove("visible"));
-    setTimeout(() => rooms.forEach((r) => r.classList.remove("active")), 700);
+    setTimeout(() => rooms.forEach((r) => r.classList.remove("active")), 600);
   }
 
   closeBtn.addEventListener("click", closeRoom);

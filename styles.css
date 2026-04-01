@@ -25,7 +25,6 @@
 }
 
 html {
-  scroll-behavior: smooth;
   background: var(--clr-bg);
   color: var(--clr-text);
 }
@@ -58,7 +57,6 @@ body {
   );
   opacity: 0;
   transition: opacity 0.5s ease;
-  mix-blend-mode: screen;
   will-change: transform;
   transform: translate3d(-500px, -500px, 0);
 }
@@ -178,18 +176,17 @@ body {
   inset: 0;
   z-index: 6;
   pointer-events: none;
+  will-change: mask-image, -webkit-mask-image;
   -webkit-mask-image: radial-gradient(
-    circle 180px at var(--mx, -200px) var(--my, -200px),
+    circle 160px at var(--mx, -200px) var(--my, -200px),
     black 0%,
-    rgba(0,0,0,0.7) 30%,
-    rgba(0,0,0,0.3) 60%,
+    rgba(0,0,0,0.5) 40%,
     transparent 100%
   );
   mask-image: radial-gradient(
-    circle 180px at var(--mx, -200px) var(--my, -200px),
+    circle 160px at var(--mx, -200px) var(--my, -200px),
     black 0%,
-    rgba(0,0,0,0.7) 30%,
-    rgba(0,0,0,0.3) 60%,
+    rgba(0,0,0,0.5) 40%,
     transparent 100%
   );
 }
@@ -279,20 +276,6 @@ body {
 @keyframes fogDrift {
   0%   { transform: translate3d(-40px, 0, 0) scaleX(1); }
   100% { transform: translate3d(40px, 0, 0) scaleX(1.15); }
-}
-
-/* Grain overlay for film texture */
-.hero-grain {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100vh;
-  pointer-events: none;
-  z-index: 3;
-  opacity: 0.04;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-  background-size: 128px 128px;
 }
 
 .hero-text {
@@ -657,18 +640,16 @@ body {
   position: fixed;
   inset: 0;
   z-index: 1000;
-  background: rgba(12, 11, 13, 0.0);
-  backdrop-filter: blur(0px);
+  background: rgba(12, 11, 13, 0);
   display: flex;
   align-items: center;
   justify-content: center;
   pointer-events: none;
-  transition: background 0.8s ease, backdrop-filter 0.8s ease;
+  transition: background 0.5s ease;
 }
 
 .room-overlay.active {
-  background: rgba(12, 11, 13, 0.95);
-  backdrop-filter: blur(16px);
+  background: rgba(12, 11, 13, 0.97);
   pointer-events: all;
 }
 
