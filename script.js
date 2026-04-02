@@ -82,6 +82,7 @@
   let prevHeroPast = false;
   let hintDismissed = false;
   let beaconDismissed = false;
+  let whisper2Revealed = false;
 
   function scheduleFrame() {
     if (!frameScheduled) {
@@ -172,15 +173,7 @@
           }
           entranceText.style.opacity = Math.max(tOp, 0);
 
-          if (whisper2) {
-            let w2 = 0;
-            if (progress > 0.45 && progress <= 0.7) {
-              w2 = (progress - 0.45) / 0.25;
-            } else if (progress > 0.7) {
-              w2 = 1 - (progress - 0.7) / 0.3;
-            }
-            whisper2.style.opacity = Math.max(w2, 0);
-          }
+          /* whisper2 is revealed by cursor hover, not scroll */
         }
       }
     }
@@ -219,6 +212,17 @@
           }
           break;
         }
+      }
+    }
+
+    /* Reveal whisper-2 on hover proximity */
+    if (!whisper2Revealed && whisper2) {
+      const r = whisper2.getBoundingClientRect();
+      const cx = r.left + r.width / 2;
+      const cy = r.top + r.height / 2;
+      if (Math.hypot(e.clientX - cx, e.clientY - cy) < 150) {
+        whisper2Revealed = true;
+        whisper2.classList.add("revealed");
       }
     }
 
