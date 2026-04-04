@@ -258,8 +258,20 @@
       }
     }
 
+    // Reveal any global secret-text elements near cursor
+    for (const el of globalSecrets) {
+      if (el.classList.contains("revealed")) continue;
+      const r = el.getBoundingClientRect();
+      if (Math.hypot(e.clientX - (r.left + r.width / 2), e.clientY - (r.top + r.height / 2)) < 140) {
+        el.classList.add("revealed");
+      }
+    }
+
     startLoop();
   }, { passive: true });
+
+  /* Collect all global secret-text elements (outside the hero mask layer) */
+  const globalSecrets = document.querySelectorAll(".secret-text");
 
   document.addEventListener("mouseleave", () => {
     glowVisible = false;

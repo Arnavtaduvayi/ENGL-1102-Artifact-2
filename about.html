@@ -21,13 +21,19 @@
   <div id="cursor-glow" class="cursor-glow"></div>
 
   <!-- ===== ABOUT HERO ===== -->
-  <header class="about-hero">
+  <header class="about-hero has-secrets">
+    <span class="secret-text" style="top:25%; left:6%;">they called it a school</span>
+    <span class="secret-text" style="bottom:15%; right:8%; top:auto; left:auto;">it was a farm</span>
     <h1 class="about-hero-title">About This Project</h1>
     <div class="about-hero-line"></div>
   </header>
 
   <!-- ===== ABOUT CONTENT ===== -->
-  <main class="about-main">
+  <main class="about-main has-secrets">
+    <span class="secret-text" style="top:12%; right:0; left:auto;">love doesn't save you</span>
+    <span class="secret-text" style="top:38%; left:-2%;">we were copies of trash</span>
+    <span class="secret-text" style="top:65%; right:-3%; left:auto;">Madame was afraid of us</span>
+    <span class="secret-text" style="bottom:5%; left:10%; top:auto;">the art proved nothing</span>
 
     <section class="about-block about-block--reveal">
       <h2>The Film</h2>
@@ -88,7 +94,8 @@
   </main>
 
   <!-- ===== FOOTER ===== -->
-  <footer class="site-footer">
+  <footer class="site-footer has-secrets">
+    <span class="secret-text" style="top:15%; left:5%;">we never complained</span>
     <p>&copy; 2026 — Never Let Me Go Project</p>
   </footer>
 
@@ -127,10 +134,20 @@
         }
       }
 
+      const secrets = document.querySelectorAll(".secret-text");
+
       document.addEventListener("mousemove", (e) => {
         mx = e.clientX; my = e.clientY;
         if (!active) { active = true; glow.classList.add("active"); }
         if (!raf) { raf = true; requestAnimationFrame(tick); }
+
+        for (const el of secrets) {
+          if (el.classList.contains("revealed")) continue;
+          const r = el.getBoundingClientRect();
+          if (Math.hypot(e.clientX - (r.left + r.width / 2), e.clientY - (r.top + r.height / 2)) < 140) {
+            el.classList.add("revealed");
+          }
+        }
       }, { passive: true });
 
       document.addEventListener("mouseleave", () => {
