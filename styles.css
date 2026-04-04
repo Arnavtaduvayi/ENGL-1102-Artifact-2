@@ -176,7 +176,6 @@ body {
   inset: 0;
   z-index: 6;
   pointer-events: none;
-  will-change: mask-image, -webkit-mask-image;
   -webkit-mask-image: radial-gradient(
     circle 160px at var(--mx, -200px) var(--my, -200px),
     black 0%,

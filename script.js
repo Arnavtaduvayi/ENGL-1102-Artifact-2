@@ -25,7 +25,7 @@
   const revealTargets = document.querySelectorAll(".hallway-intro, .door-card");
 
   /* --------------------------------------------------
-     Cached layout values (avoid per-frame DOM reads)
+     Cached layout values
      -------------------------------------------------- */
   let cachedVh      = window.innerHeight;
   let cachedHeroH   = heroSection  ? heroSection.offsetHeight  : 0;
@@ -33,19 +33,17 @@
   let cachedEntH    = entranceSection ? entranceSection.offsetHeight : 0;
   let cachedHeroTop = heroSection  ? heroSection.getBoundingClientRect().top + window.scrollY : 0;
 
-  /* Pre-cache secret message positions once (no per-frame reflow) */
   let cachedSecretPositions = [];
   function cacheSecretPositions() {
     if (!secretLayer) return;
     cachedSecretPositions = [];
     const msgs = secretLayer.querySelectorAll(".secret-msg");
-    const scrollY = window.scrollY;
+    const sy = window.scrollY;
     for (const msg of msgs) {
       const r = msg.getBoundingClientRect();
       cachedSecretPositions.push({
-        x: r.left + r.width / 2 + scrollY * 0, // clientX-relative
-        y: r.top + r.height / 2,
-        absY: r.top + scrollY + r.height / 2    // absolute page Y
+        x: r.left + r.width / 2,
+        absY: r.top + sy + r.height / 2
       });
     }
   }
@@ -65,124 +63,176 @@
     resizeTimer = setTimeout(recacheLayout, 200);
   }, { passive: true });
 
-  // Initial cache after layout settles
-  requestAnimationFrame(() => {
-    recacheLayout();
-    cacheSecretPositions();
-  });
+  requestAnimationFrame(() => recacheLayout());
 
   /* --------------------------------------------------
-     Cursor state
+     Smoothed state — all animated values lerp toward
+     their targets so nothing snaps.
      -------------------------------------------------- */
+  const LERP = 0.08;            // scroll-driven smoothing (lower = smoother)
+  const CURSOR_LERP  = 0.16;    // glow follow speed
+  const DOT_LERP     = 0.4;     // dot follow speed
+
   let mouseX = -500, mouseY = -500;
   let glowX  = -500, glowY  = -500;
   let dotX   = -500, dotY   = -500;
+
+  // Smoothed scroll-driven values (current → target)
+  let sHeroScale   = 1,   tHeroScale   = 1;
+  let sVignetteOp  = 0,   tVignetteOp  = 0;
+  let sTextOp      = 1,   tTextOp      = 1;
+  let sTextY       = 0,   tTextY       = 0;
+  let sFogOp       = 0.4, tFogOp       = 0.4;
+  let sGateL       = 0,   tGateL       = 0;
+  let sGateR       = 0,   tGateR       = 0;
+  let sGateBdr     = 1,   tGateBdr     = 1;
+  let sEntTextOp   = 0,   tEntTextOp   = 0;
+
   let glowVisible = false;
-  let frameScheduled = false;
+  let running = false;
   let prevHeroPast = false;
   let hintDismissed = false;
   let beaconDismissed = false;
   let whisper2Revealed = false;
 
-  function scheduleFrame() {
-    if (!frameScheduled) {
-      frameScheduled = true;
+  function startLoop() {
+    if (!running) {
+      running = true;
       requestAnimationFrame(tick);
     }
   }
 
   /* --------------------------------------------------
-     Main animation loop — only transforms, no reflows
+     Lerp helper
      -------------------------------------------------- */
-  function tick() {
-    frameScheduled = false;
-    const scrollY = window.scrollY;
-    let needsAnotherFrame = false;
+  function lerp(current, target, factor) {
+    const d = target - current;
+    return Math.abs(d) < 0.001 ? target : current + d * factor;
+  }
 
-    /* --- Cursor glow (GPU transform only) --- */
-    if (glowVisible) {
-      glowX += (mouseX - glowX) * 0.15;
-      glowY += (mouseY - glowY) * 0.15;
-      dotX  += (mouseX - dotX)  * 0.35;
-      dotY  += (mouseY - dotY)  * 0.35;
-
-      cursorGlow.style.transform =
-        `translate3d(${glowX - 110}px, ${glowY - 110}px, 0)`;
-      cursorDot.style.transform =
-        `translate3d(${dotX - 3}px, ${dotY - 3}px, 0)`;
-
-      if (Math.abs(mouseX - glowX) > 0.3 || Math.abs(mouseY - glowY) > 0.3) {
-        needsAnotherFrame = true;
+  /* --------------------------------------------------
+     Compute targets from raw scroll (pure math, no DOM)
+     -------------------------------------------------- */
+  function computeTargets(scrollY) {
+    // Hero parallax
+    if (heroSection) {
+      const maxScroll = cachedHeroH - cachedVh;
+      if (maxScroll > 0) {
+        const p = Math.min(scrollY / maxScroll, 1);
+        tHeroScale  = 1 + p * 0.5;
+        tVignetteOp = p;
+        const tp = Math.min(scrollY / (cachedVh * 0.35), 1);
+        tTextOp = 1 - tp;
+        tTextY  = tp * -60;
+        tFogOp  = 0.4 * (1 - p);
       }
     }
 
-    /* --- Secret layer mask (CSS var update) --- */
+    // Entrance gates
+    if (entranceSection) {
+      const start = cachedEntTop - cachedVh;
+      const end   = cachedEntTop + cachedEntH * 0.6;
+      const range = end - start;
+      if (range > 0 && scrollY >= start && scrollY <= cachedEntTop + cachedEntH) {
+        const p = Math.min(Math.max((scrollY - start) / range, 0), 1);
+        tGateL   = -p * 100;
+        tGateR   = p * 100;
+        tGateBdr = Math.max(1 - p * 2, 0);
+
+        let tOp = 0;
+        if (p > 0.3 && p <= 0.65)      tOp = (p - 0.3) / 0.35;
+        else if (p > 0.65)              tOp = 1 - (p - 0.65) / 0.35;
+        tEntTextOp = Math.max(tOp, 0);
+      } else if (scrollY < start) {
+        tGateL = 0; tGateR = 0; tGateBdr = 1; tEntTextOp = 0;
+      }
+    }
+  }
+
+  /* --------------------------------------------------
+     Main tick — lerps current toward target each frame
+     -------------------------------------------------- */
+  function tick() {
+    running = false;
+    const scrollY = window.scrollY;
+    let settling = false;        // true if any value still converging
+
+    computeTargets(scrollY);
+
+    /* --- Cursor --- */
+    if (glowVisible) {
+      glowX = lerp(glowX, mouseX, CURSOR_LERP);
+      glowY = lerp(glowY, mouseY, CURSOR_LERP);
+      dotX  = lerp(dotX, mouseX, DOT_LERP);
+      dotY  = lerp(dotY, mouseY, DOT_LERP);
+
+      cursorGlow.style.transform = `translate3d(${glowX - 110}px,${glowY - 110}px,0)`;
+      cursorDot.style.transform  = `translate3d(${dotX - 3}px,${dotY - 3}px,0)`;
+
+      if (Math.abs(mouseX - glowX) > 0.3 || Math.abs(mouseY - glowY) > 0.3) settling = true;
+    }
+
+    /* --- Secret mask (follows mouse directly, no lerp needed) --- */
     if (secretLayer && glowVisible) {
       secretLayer.style.setProperty("--mx", mouseX + "px");
       secretLayer.style.setProperty("--my", (mouseY + scrollY - cachedHeroTop) + "px");
     }
 
-    /* --- Hero parallax --- */
+    /* --- Hero parallax (smoothed) --- */
     if (heroSection) {
-      const maxScroll = cachedHeroH - cachedVh;
-      if (maxScroll > 0) {
-        const progress = Math.min(scrollY / maxScroll, 1);
+      sHeroScale  = lerp(sHeroScale,  tHeroScale,  LERP);
+      sVignetteOp = lerp(sVignetteOp, tVignetteOp, LERP);
+      sTextOp     = lerp(sTextOp,     tTextOp,     LERP);
+      sTextY      = lerp(sTextY,      tTextY,      LERP);
+      sFogOp      = lerp(sFogOp,      tFogOp,      LERP);
 
-        heroImage.style.transform = `scale(${1 + progress * 0.5})`;
-        heroVignette.style.opacity = progress;
+      heroImage.style.transform   = `scale(${sHeroScale})`;
+      heroVignette.style.opacity  = sVignetteOp;
+      heroText.style.opacity      = sTextOp;
+      heroText.style.transform    = `translateY(${sTextY}px)`;
+      fogEls.forEach(f => { f.style.opacity = sFogOp; });
 
-        const textProg = Math.min(scrollY / (cachedVh * 0.35), 1);
-        heroText.style.opacity = 1 - textProg;
-        heroText.style.transform = `translateY(${textProg * -60}px)`;
+      if (Math.abs(sHeroScale - tHeroScale) > 0.001 ||
+          Math.abs(sVignetteOp - tVignetteOp) > 0.001 ||
+          Math.abs(sFogOp - tFogOp) > 0.001) settling = true;
 
-        fogEls.forEach((f) => { f.style.opacity = 0.4 * (1 - progress); });
-
-        const pastHero = progress >= 1;
-        if (pastHero !== prevHeroPast) {
-          prevHeroPast = pastHero;
-          const d = pastHero ? "none" : "";
-          heroVignette.style.display = d;
-          heroText.style.display     = d;
-          fogEls.forEach((f) => { f.style.display = d; });
-        }
+      // Toggle fixed layers off when fully past hero
+      const pastHero = scrollY >= cachedHeroH - cachedVh;
+      if (pastHero !== prevHeroPast) {
+        prevHeroPast = pastHero;
+        const d = pastHero ? "none" : "";
+        heroVignette.style.display = d;
+        heroText.style.display     = d;
+        fogEls.forEach(f => { f.style.display = d; });
       }
     }
 
-    /* --- Entrance gates --- */
+    /* --- Entrance gates (smoothed) --- */
     if (entranceSection) {
-      const start = cachedEntTop - cachedVh;
-      const end   = cachedEntTop + cachedEntH * 0.6;
+      sGateL      = lerp(sGateL,      tGateL,      LERP);
+      sGateR      = lerp(sGateR,      tGateR,      LERP);
+      sGateBdr    = lerp(sGateBdr,    tGateBdr,    LERP);
+      sEntTextOp  = lerp(sEntTextOp,  tEntTextOp,  LERP);
 
-      if (scrollY >= start && scrollY <= cachedEntTop + cachedEntH) {
-        const range = end - start;
-        if (range > 0) {
-          const progress = Math.min(Math.max((scrollY - start) / range, 0), 1);
+      gateLeft.style.transform   = `translateX(${sGateL}%)`;
+      gateRight.style.transform  = `translateX(${sGateR}%)`;
+      gateLeft.style.borderColor  = `rgba(138,127,114,${sGateBdr * 0.4})`;
+      gateRight.style.borderColor = `rgba(138,127,114,${sGateBdr * 0.4})`;
+      entranceText.style.opacity  = sEntTextOp;
 
-          gateLeft.style.transform  = `translateX(-${progress * 100}%)`;
-          gateRight.style.transform = `translateX(${progress * 100}%)`;
-
-          const bdr = Math.max(1 - progress * 2, 0);
-          gateLeft.style.borderColor  = `rgba(138,127,114,${bdr * 0.4})`;
-          gateRight.style.borderColor = `rgba(138,127,114,${bdr * 0.4})`;
-
-          let tOp = 0;
-          if (progress > 0.3 && progress <= 0.65) {
-            tOp = (progress - 0.3) / 0.35;
-          } else if (progress > 0.65) {
-            tOp = 1 - (progress - 0.65) / 0.35;
-          }
-          entranceText.style.opacity = Math.max(tOp, 0);
-
-          /* whisper2 is revealed by cursor hover, not scroll */
-        }
-      }
+      if (Math.abs(sGateL - tGateL) > 0.01 ||
+          Math.abs(sEntTextOp - tEntTextOp) > 0.001) settling = true;
     }
 
-    if (needsAnotherFrame) scheduleFrame();
+    /* Keep looping while any value is still settling */
+    if (settling) {
+      running = true;
+      requestAnimationFrame(tick);
+    }
   }
 
   /* --------------------------------------------------
-     Event listeners (lightweight — store values only)
+     Event listeners
      -------------------------------------------------- */
   document.addEventListener("mousemove", (e) => {
     mouseX = e.clientX;
@@ -194,39 +244,29 @@
       cursorDot.classList.add("active");
     }
 
-    /* Check proximity to secrets using cached positions (no reflow) */
+    // Proximity checks using cached positions (no reflow)
     if (!hintDismissed || !beaconDismissed) {
-      const scrollY = window.scrollY;
+      const sy = window.scrollY;
       for (const pos of cachedSecretPositions) {
-        // Convert absolute Y to viewport Y
-        const viewY = pos.absY - scrollY;
-        const dist = Math.hypot(e.clientX - pos.x, e.clientY - viewY);
-        if (dist < 180) {
-          if (!hintDismissed && hoverHint) {
-            hintDismissed = true;
-            hoverHint.classList.add("hidden");
-          }
-          if (!beaconDismissed && beacon) {
-            beaconDismissed = true;
-            beacon.classList.add("hidden");
-          }
+        const viewY = pos.absY - sy;
+        if (Math.hypot(e.clientX - pos.x, e.clientY - viewY) < 180) {
+          if (!hintDismissed && hoverHint)  { hintDismissed = true;   hoverHint.classList.add("hidden"); }
+          if (!beaconDismissed && beacon)    { beaconDismissed = true; beacon.classList.add("hidden"); }
           break;
         }
       }
     }
 
-    /* Reveal whisper-2 on hover proximity */
-    if (!whisper2Revealed && whisper2) {
+    // Whisper-2 proximity (one-time check, then skip forever)
+    if (!whisper2Revealed && whisper2 && whisper2.offsetParent !== null) {
       const r = whisper2.getBoundingClientRect();
-      const cx = r.left + r.width / 2;
-      const cy = r.top + r.height / 2;
-      if (Math.hypot(e.clientX - cx, e.clientY - cy) < 150) {
+      if (Math.hypot(e.clientX - (r.left + r.width / 2), e.clientY - (r.top + r.height / 2)) < 150) {
         whisper2Revealed = true;
         whisper2.classList.add("revealed");
       }
     }
 
-    scheduleFrame();
+    startLoop();
   }, { passive: true });
 
   document.addEventListener("mouseleave", () => {
@@ -235,13 +275,12 @@
     cursorDot.classList.remove("active");
   });
 
-  window.addEventListener("scroll", scheduleFrame, { passive: true });
+  window.addEventListener("scroll", startLoop, { passive: true });
 
-  // Initial frame
-  scheduleFrame();
+  startLoop();
 
   /* --------------------------------------------------
-     Scroll-triggered reveal (Intersection Observer)
+     Scroll-triggered reveal
      -------------------------------------------------- */
   const revealObserver = new IntersectionObserver(
     (entries) => {
@@ -254,8 +293,7 @@
     },
     { threshold: 0.15 }
   );
-
-  revealTargets.forEach((el) => revealObserver.observe(el));
+  revealTargets.forEach(el => revealObserver.observe(el));
 
   /* --------------------------------------------------
      Door click → open room overlay
@@ -267,11 +305,7 @@
   document.querySelectorAll(".door-card").forEach((card) => {
     card.addEventListener("click", () => {
       const key = card.dataset.door;
-
-      // Door swings open with light burst
       card.classList.add("clicked");
-
-      // After door opens, show room
       setTimeout(() => {
         openRoom(key);
         setTimeout(() => card.classList.remove("clicked"), 300);
@@ -280,27 +314,22 @@
   });
 
   function openRoom(key) {
-    rooms.forEach((r) => r.classList.remove("active", "visible"));
-
+    rooms.forEach(r => r.classList.remove("active", "visible"));
     const target = document.querySelector(`.room[data-room="${key}"]`);
     if (!target) return;
-
     target.classList.add("active");
     overlay.classList.add("active");
     document.body.classList.add("locked");
-
     requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        target.classList.add("visible");
-      });
+      requestAnimationFrame(() => target.classList.add("visible"));
     });
   }
 
   function closeRoom() {
     overlay.classList.remove("active");
     document.body.classList.remove("locked");
-    rooms.forEach((r) => r.classList.remove("visible"));
-    setTimeout(() => rooms.forEach((r) => r.classList.remove("active")), 600);
+    rooms.forEach(r => r.classList.remove("visible"));
+    setTimeout(() => rooms.forEach(r => r.classList.remove("active")), 600);
   }
 
   closeBtn.addEventListener("click", closeRoom);
