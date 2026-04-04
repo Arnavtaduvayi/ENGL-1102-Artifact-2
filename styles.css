@@ -34,11 +34,10 @@ body {
   font-weight: 300;
   line-height: 1.6;
   overflow-x: hidden;
-  cursor: none;
 }
 
 /* ============================================================
-   CUSTOM CURSOR
+   CURSOR GLOW (light around the normal cursor)
    ============================================================ */
 .cursor-glow {
   position: fixed;
@@ -62,27 +61,6 @@ body {
 }
 
 .cursor-glow.active {
-  opacity: 1;
-}
-
-/* small bright dot at center of glow */
-.cursor-dot {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: rgba(255, 230, 170, 0.6);
-  pointer-events: none;
-  z-index: 10000;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  will-change: transform;
-  transform: translate3d(-500px, -500px, 0);
-}
-
-.cursor-dot.active {
   opacity: 1;
 }
 
@@ -498,7 +476,6 @@ body {
 
 .door-card {
   text-align: center;
-  cursor: none;
   opacity: 0;
   transform: translateY(50px);
   transition: opacity 0.8s ease, transform 0.8s ease;
@@ -665,7 +642,7 @@ body {
   border: none;
   color: var(--clr-text-muted);
   font-size: 2rem;
-  cursor: none;
+  cursor: default;
   z-index: 1001;
   opacity: 0;
   transition: opacity 0.4s ease 0.4s, color 0.3s ease, transform 0.3s ease;
@@ -742,7 +719,7 @@ body {
   text-decoration: none;
   color: var(--clr-text-muted);
   pointer-events: all;
-  cursor: none;
+  cursor: default;
   position: relative;
   padding-bottom: 4px;
   transition: color 0.3s ease;
@@ -889,8 +866,7 @@ body.locked {
     cursor: auto;
   }
 
-  .cursor-glow,
-  .cursor-dot {
+  .cursor-glow {
     display: none;
   }
 }

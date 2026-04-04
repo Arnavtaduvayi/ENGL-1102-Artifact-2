@@ -17,7 +17,6 @@
   const whisper2        = document.querySelector(".entrance-whisper-2");
 
   const cursorGlow  = document.getElementById("cursor-glow");
-  const cursorDot   = document.getElementById("cursor-dot");
   const secretLayer = document.getElementById("secret-layer");
   const hoverHint   = document.getElementById("hover-hint");
   const beacon      = document.getElementById("secret-beacon");
@@ -71,11 +70,8 @@
      -------------------------------------------------- */
   const LERP = 0.08;            // scroll-driven smoothing (lower = smoother)
   const CURSOR_LERP  = 0.16;    // glow follow speed
-  const DOT_LERP     = 0.4;     // dot follow speed
-
   let mouseX = -500, mouseY = -500;
   let glowX  = -500, glowY  = -500;
-  let dotX   = -500, dotY   = -500;
 
   // Smoothed scroll-driven values (current → target)
   let sHeroScale   = 1,   tHeroScale   = 1;
@@ -163,11 +159,8 @@
     if (glowVisible) {
       glowX = lerp(glowX, mouseX, CURSOR_LERP);
       glowY = lerp(glowY, mouseY, CURSOR_LERP);
-      dotX  = lerp(dotX, mouseX, DOT_LERP);
-      dotY  = lerp(dotY, mouseY, DOT_LERP);
 
       cursorGlow.style.transform = `translate3d(${glowX - 110}px,${glowY - 110}px,0)`;
-      cursorDot.style.transform  = `translate3d(${dotX - 3}px,${dotY - 3}px,0)`;
 
       if (Math.abs(mouseX - glowX) > 0.3 || Math.abs(mouseY - glowY) > 0.3) settling = true;
     }
@@ -241,7 +234,6 @@
     if (!glowVisible) {
       glowVisible = true;
       cursorGlow.classList.add("active");
-      cursorDot.classList.add("active");
     }
 
     // Proximity checks using cached positions (no reflow)
@@ -272,7 +264,6 @@
   document.addEventListener("mouseleave", () => {
     glowVisible = false;
     cursorGlow.classList.remove("active");
-    cursorDot.classList.remove("active");
   });
 
   window.addEventListener("scroll", startLoop, { passive: true });
