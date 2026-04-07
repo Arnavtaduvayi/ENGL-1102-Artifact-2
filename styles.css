@@ -694,6 +694,21 @@ body {
   margin-bottom: 1.5rem;
 }
 
+.room-figure {
+  margin: 0 0 2rem;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid rgba(201, 169, 110, 0.2);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+}
+
+.room-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  vertical-align: middle;
+}
+
 /* ============================================================
    SITE NAV
    ============================================================ */
@@ -843,6 +858,260 @@ body {
 /* Wrapper needed for positioning secrets relative to a section */
 .has-secrets {
   position: relative;
+}
+
+/* ============================================================
+   BIOS / TEAM — gallery wall (hung portraits)
+   ============================================================ */
+.bios-hero {
+  text-align: center;
+  padding: 7rem 2rem 3rem;
+  background: radial-gradient(ellipse at 50% 0%, #252018 0%, var(--clr-bg) 55%);
+}
+
+.bios-hero-eyebrow {
+  font-size: 0.75rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--clr-text-muted);
+  margin-bottom: 1rem;
+}
+
+.bios-hero-title {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: clamp(2.8rem, 7vw, 4.2rem);
+  color: var(--clr-text);
+  letter-spacing: 0.06em;
+}
+
+.bios-hero-sub {
+  max-width: 420px;
+  margin: 1.5rem auto 0;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: var(--clr-text-muted);
+  font-style: italic;
+  font-family: var(--font-display);
+}
+
+.bios-gallery {
+  position: relative;
+  padding: 2rem 1.5rem 6rem;
+  min-height: 70vh;
+  overflow: hidden;
+}
+
+.bios-wall-texture {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(30, 26, 22, 0.97) 0%, var(--clr-bg-warm) 50%, var(--clr-bg) 100%),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 0, 0, 0.03) 2px,
+      rgba(0, 0, 0, 0.03) 4px
+    );
+  pointer-events: none;
+}
+
+.bios-rail {
+  position: relative;
+  z-index: 1;
+  max-width: 920px;
+  height: 4px;
+  margin: 0 auto 0;
+  background: linear-gradient(90deg, transparent, #3a342c 15%, #3a342c 85%, transparent);
+  border-radius: 2px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.bios-rail::before,
+.bios-rail::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #5c5348, #2a2520);
+  transform: translateY(-50%);
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.15);
+}
+
+.bios-rail::before { left: 12%; }
+.bios-rail::after { right: 12%; }
+
+.bios-frames {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-start;
+  gap: clamp(1.5rem, 4vw, 3rem);
+  max-width: 1100px;
+  margin: 0 auto;
+  padding-top: 0.5rem;
+}
+
+.bios-card {
+  flex: 1 1 240px;
+  max-width: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform: rotate(var(--tilt, 0deg)) translateY(36px);
+  transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1), filter 0.45s ease, opacity 0.6s ease;
+  filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.35));
+  opacity: 0;
+}
+
+.bios-card.visible {
+  opacity: 1;
+  transform: rotate(var(--tilt, 0deg)) translateY(0);
+  transition:
+    opacity 0.9s ease var(--delay, 0s),
+    transform 0.9s cubic-bezier(0.22, 1, 0.36, 1) var(--delay, 0s),
+    filter 0.45s ease;
+}
+
+.bios-card:hover {
+  transform: rotate(0deg) translateY(-6px) scale(1.02);
+  filter: drop-shadow(0 20px 40px rgba(201, 169, 110, 0.12));
+  z-index: 3;
+}
+
+.bios-wire {
+  width: 2px;
+  height: 48px;
+  margin: 0 auto -2px;
+  background: linear-gradient(180deg, #6b6358, #3d3832);
+  border-radius: 1px;
+  opacity: 0.85;
+}
+
+.bios-wire--long {
+  height: 72px;
+}
+
+.bios-frame {
+  width: 100%;
+  max-width: 220px;
+  padding: 10px 10px 14px;
+  background: linear-gradient(145deg, #2e2924 0%, #1a1714 100%);
+  border: 1px solid rgba(201, 169, 110, 0.25);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 4px 0 #151210;
+  transition: border-color 0.4s ease, box-shadow 0.4s ease;
+}
+
+.bios-card:hover .bios-frame {
+  border-color: rgba(201, 169, 110, 0.5);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 0 0 1px rgba(201, 169, 110, 0.15),
+    0 4px 0 #151210,
+    0 0 48px rgba(201, 169, 110, 0.08);
+}
+
+.bios-frame--tall .bios-photo {
+  aspect-ratio: 3 / 4;
+  min-height: 280px;
+}
+
+.bios-photo {
+  aspect-ratio: 4 / 5;
+  min-height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.bios-photo--a {
+  background: linear-gradient(160deg, #3d3530 0%, #1e1a17 50%, #2a231c 100%);
+}
+
+.bios-photo--b {
+  background: linear-gradient(200deg, #2c2622 0%, #1a1614 45%, #352e28 100%);
+}
+
+.bios-photo--c {
+  background: linear-gradient(180deg, #322b26 0%, #161412 60%, #2a2420 100%);
+}
+
+.bios-photo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 3px,
+    rgba(0, 0, 0, 0.06) 3px,
+    rgba(0, 0, 0, 0.06) 4px
+  );
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+.bios-photo-label {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.1rem;
+  color: var(--clr-text-muted);
+  letter-spacing: 0.15em;
+  text-transform: lowercase;
+  opacity: 0.65;
+}
+
+.bios-caption {
+  margin-top: 1.75rem;
+  text-align: center;
+  padding: 0 0.5rem;
+  max-width: 280px;
+}
+
+.bios-name {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 1.5rem;
+  color: var(--clr-accent);
+  margin-bottom: 0.35rem;
+}
+
+.bios-role {
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--clr-text-muted);
+  margin-bottom: 0.85rem;
+}
+
+.bios-blurb {
+  font-size: 0.9rem;
+  line-height: 1.75;
+  color: var(--clr-text);
+}
+
+@media (max-width: 768px) {
+  .bios-card,
+  .bios-card.visible {
+    transform: none !important;
+    max-width: 100%;
+  }
+
+  .bios-card:hover {
+    transform: translateY(-4px) scale(1.01) !important;
+  }
+
+  .bios-rail::before { left: 5%; }
+  .bios-rail::after { right: 5%; }
 }
 
 /* ============================================================
