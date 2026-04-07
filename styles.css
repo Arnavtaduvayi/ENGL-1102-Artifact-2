@@ -623,8 +623,10 @@ body {
   z-index: 1000;
   background: rgba(12, 11, 13, 0);
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   pointer-events: none;
   transition: background 0.5s ease;
 }
@@ -659,7 +661,8 @@ body {
 
 .room-content {
   max-width: 640px;
-  padding: 2rem;
+  padding: 5rem 2rem;
+  margin: auto;
   text-align: center;
 }
 
