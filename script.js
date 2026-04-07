@@ -258,12 +258,14 @@
       }
     }
 
-    // Reveal any global secret-text elements near cursor
+    // Reveal/hide global secret-text elements based on cursor proximity
     for (const el of globalSecrets) {
-      if (el.classList.contains("revealed")) continue;
       const r = el.getBoundingClientRect();
-      if (Math.hypot(e.clientX - (r.left + r.width / 2), e.clientY - (r.top + r.height / 2)) < 140) {
+      const dist = Math.hypot(e.clientX - (r.left + r.width / 2), e.clientY - (r.top + r.height / 2));
+      if (dist < 140) {
         el.classList.add("revealed");
+      } else {
+        el.classList.remove("revealed");
       }
     }
 
