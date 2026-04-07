@@ -622,9 +622,6 @@ body {
   inset: 0;
   z-index: 1000;
   background: rgba(12, 11, 13, 0);
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   pointer-events: none;
@@ -662,7 +659,7 @@ body {
 .room-content {
   max-width: 640px;
   padding: 5rem 2rem;
-  margin: auto;
+  margin: 0 auto;
   text-align: center;
 }
 
@@ -865,6 +862,8 @@ body {
    ============================================================ */
 body.locked {
   overflow: hidden;
+  position: fixed;
+  width: 100%;
 }
 
 /* ============================================================

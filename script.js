@@ -318,13 +318,18 @@
     });
   });
 
+  let savedScrollY = 0;
+
   function openRoom(key) {
     rooms.forEach(r => r.classList.remove("active", "visible"));
     const target = document.querySelector(`.room[data-room="${key}"]`);
     if (!target) return;
     target.classList.add("active");
     overlay.classList.add("active");
+    savedScrollY = window.scrollY;
+    document.body.style.top = `-${savedScrollY}px`;
     document.body.classList.add("locked");
+    overlay.scrollTop = 0;
     requestAnimationFrame(() => {
       requestAnimationFrame(() => target.classList.add("visible"));
     });
@@ -333,6 +338,8 @@
   function closeRoom() {
     overlay.classList.remove("active");
     document.body.classList.remove("locked");
+    document.body.style.top = "";
+    window.scrollTo(0, savedScrollY);
     rooms.forEach(r => r.classList.remove("visible"));
     setTimeout(() => rooms.forEach(r => r.classList.remove("active")), 600);
   }

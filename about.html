@@ -142,10 +142,12 @@
         if (!raf) { raf = true; requestAnimationFrame(tick); }
 
         for (const el of secrets) {
-          if (el.classList.contains("revealed")) continue;
           const r = el.getBoundingClientRect();
-          if (Math.hypot(e.clientX - (r.left + r.width / 2), e.clientY - (r.top + r.height / 2)) < 140) {
+          const dist = Math.hypot(e.clientX - (r.left + r.width / 2), e.clientY - (r.top + r.height / 2));
+          if (dist < 140) {
             el.classList.add("revealed");
+          } else {
+            el.classList.remove("revealed");
           }
         }
       }, { passive: true });
