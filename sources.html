@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sources — Never Let Me Go</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Inter:wght@300;400&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <nav class="site-nav">
+    <a href="index.html" class="nav-link">Home</a>
+    <a href="about.html" class="nav-link">About</a>
+    <a href="bios.html" class="nav-link">Team</a>
+    <a href="sources.html" class="nav-link active">Sources</a>
+  </nav>
+
+  <div id="cursor-glow" class="cursor-glow"></div>
+
+  <header class="about-hero">
+    <h1 class="about-hero-title">Sources</h1>
+    <div class="about-hero-line"></div>
+  </header>
+
+  <main class="about-main sources-page">
+    <ol class="sources-list">
+      <li class="sources-item">
+        Hu, L. (n.d.). Dynamic evolution of sentiments in <em>Never Let Me Go</em>: Insights from quantitative analysis and implications | IEEE conference publication | IEEE Xplore.
+        <a href="https://ieeexplore.ieee.org/document/8963117/" class="sources-link" target="_blank" rel="noopener noreferrer">https://ieeexplore.ieee.org/document/8963117/</a>
+      </li>
+      <li class="sources-item">
+        r/TrueFilm on Reddit: <em>Never Let Me Go</em> (2011), a masterpiece that everyone must watch. (n.d.).
+        <a href="https://www.reddit.com/r/TrueFilm/comments/1bsn273/never_let_me_go_2011_a_masterpiece_that_everyone/" class="sources-link" target="_blank" rel="noopener noreferrer">https://www.reddit.com/r/TrueFilm/comments/1bsn273/never_let_me_go_2011_a_masterpiece_that_everyone/</a>
+      </li>
+      <li class="sources-item">
+        Snaza, N. (n.d.). The failure of humanizing education in Kazuo Ishiguro’s <em>Never Let Me Go</em>: <cite>Lit: Literature Interpretation Theory</cite>: Vol 26, No 3.
+        <a href="https://www.tandfonline.com/doi/abs/10.1080/10436928.2015.1062344" class="sources-link" target="_blank" rel="noopener noreferrer">https://www.tandfonline.com/doi/abs/10.1080/10436928.2015.1062344</a>
+      </li>
+      <li class="sources-item">
+        Watch <em>Never Let Me Go</em>. Netflix. (n.d.).
+        <a href="https://www.netflix.com/title/70120827" class="sources-link" target="_blank" rel="noopener noreferrer">https://www.netflix.com/title/70120827</a>
+      </li>
+    </ol>
+  </main>
+
+  <footer class="site-footer">
+    <p>&copy; 2026 — Never Let Me Go Project</p>
+  </footer>
+
+  <script>
+    (() => {
+      const glow = document.getElementById("cursor-glow");
+      if (!glow) return;
+      let mx = -500, my = -500, gx = -500, gy = -500, active = false, raf = false;
+      function tick() {
+        raf = false;
+        gx += (mx - gx) * 0.16;
+        gy += (my - gy) * 0.16;
+        glow.style.transform = `translate3d(${gx - 110}px,${gy - 110}px,0)`;
+        if (Math.abs(mx - gx) > 0.5 || Math.abs(my - gy) > 0.5) {
+          raf = true;
+          requestAnimationFrame(tick);
+        }
+      }
+      document.addEventListener("mousemove", (e) => {
+        mx = e.clientX; my = e.clientY;
+        if (!active) { active = true; glow.classList.add("active"); }
+        if (!raf) { raf = true; requestAnimationFrame(tick); }
+      }, { passive: true });
+      document.addEventListener("mouseleave", () => {
+        active = false; glow.classList.remove("active");
+      });
+    })();
+  </script>
+</body>
+</html>
