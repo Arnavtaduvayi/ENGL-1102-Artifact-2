@@ -306,6 +306,10 @@
   const overlay  = document.getElementById("room-overlay");
   const rooms    = document.querySelectorAll(".room");
   const closeBtn = document.querySelector(".room-close");
+  const navPrev  = document.getElementById("room-nav-prev");
+  const navNext  = document.getElementById("room-nav-next");
+
+  const ROOM_ORDER = ["hailsham", "love", "system", "human"];
 
   document.querySelectorAll(".door-card").forEach((card) => {
     card.addEventListener("click", () => {
@@ -320,19 +324,30 @@
 
   let savedScrollY = 0;
 
-  function openRoom(key) {
+  function openRoom(key, { navigate = false } = {}) {
     rooms.forEach(r => r.classList.remove("active", "visible"));
     const target = document.querySelector(`.room[data-room="${key}"]`);
     if (!target) return;
     target.classList.add("active");
     overlay.classList.add("active");
-    savedScrollY = window.scrollY;
-    document.body.style.top = `-${savedScrollY}px`;
-    document.body.classList.add("locked");
+    if (!navigate) {
+      savedScrollY = window.scrollY;
+      document.body.style.top = `-${savedScrollY}px`;
+      document.body.classList.add("locked");
+    }
     overlay.scrollTop = 0;
     requestAnimationFrame(() => {
       requestAnimationFrame(() => target.classList.add("visible"));
     });
+  }
+
+  function goAdjacent(delta) {
+    const active = document.querySelector(".room.active");
+    if (!active || !overlay.classList.contains("active")) return;
+    let i = ROOM_ORDER.indexOf(active.dataset.room);
+    if (i < 0) return;
+    i = (i + delta + ROOM_ORDER.length) % ROOM_ORDER.length;
+    openRoom(ROOM_ORDER[i], { navigate: true });
   }
 
   function closeRoom() {
@@ -346,5 +361,22 @@
 
   closeBtn.addEventListener("click", closeRoom);
   overlay.addEventListener("click", (e) => { if (e.target === overlay) closeRoom(); });
-  document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeRoom(); });
+  if (navPrev) navPrev.addEventListener("click", (e) => { e.stopPropagation(); goAdjacent(-1); });
+  if (navNext) navNext.addEventListener("click", (e) => { e.stopPropagation(); goAdjacent(1); });
+
+  document.addEventListener("keydown", (e) => {
+    if (!overlay.classList.contains("active")) return;
+    if (e.key === "Escape") {
+      closeRoom();
+      return;
+    }
+    if (e.key === "ArrowLeft") {
+      e.preventDefault();
+      goAdjacent(-1);
+    }
+    if (e.key === "ArrowRight") {
+      e.preventDefault();
+      goAdjacent(1);
+    }
+  });
 })();

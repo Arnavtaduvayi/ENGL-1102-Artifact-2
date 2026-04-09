@@ -656,6 +656,61 @@ body {
   transform: rotate(90deg);
 }
 
+.room-nav {
+  position: fixed;
+  top: 50%;
+  z-index: 1002;
+  width: 52px;
+  height: 52px;
+  margin-top: -26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(201, 169, 110, 0.35);
+  border-radius: 50%;
+  background: rgba(12, 11, 13, 0.65);
+  color: var(--clr-text-muted);
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease 0.35s, color 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+}
+
+.room-overlay.active .room-nav {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.room-nav:hover {
+  color: var(--clr-accent);
+  border-color: rgba(201, 169, 110, 0.55);
+  background: rgba(30, 26, 22, 0.85);
+}
+
+.room-nav--prev {
+  left: clamp(0.75rem, 3vw, 1.75rem);
+}
+
+.room-nav--next {
+  right: clamp(0.75rem, 3vw, 1.75rem);
+}
+
+@media (max-width: 700px) {
+  .room-nav {
+    width: 44px;
+    height: 44px;
+    margin-top: -22px;
+  }
+
+  .room-nav--prev {
+    left: 0.5rem;
+  }
+
+  .room-nav--next {
+    right: 0.5rem;
+  }
+}
+
 .room-content {
   max-width: 640px;
   padding: 5rem 2rem;
