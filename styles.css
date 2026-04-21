@@ -791,6 +791,16 @@ body {
   vertical-align: middle;
 }
 
+.room-figcaption {
+  font-size: 0.75rem;
+  color: var(--clr-text-muted);
+  letter-spacing: 0.04em;
+  text-align: right;
+  padding: 0.6rem 0.8rem;
+  background: rgba(0, 0, 0, 0.35);
+  font-style: italic;
+}
+
 /* ============================================================
    SITE NAV
    ============================================================ */
