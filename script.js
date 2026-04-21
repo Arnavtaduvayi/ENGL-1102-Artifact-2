@@ -309,7 +309,7 @@
   const navPrev  = document.getElementById("room-nav-prev");
   const navNext  = document.getElementById("room-nav-next");
 
-  const ROOM_ORDER = ["hailsham", "love", "system", "human"];
+  const ROOM_ORDER = ["hailsham", "love", "system", "human", "world"];
 
   document.querySelectorAll(".door-card").forEach((card) => {
     card.addEventListener("click", () => {

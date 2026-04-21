@@ -489,6 +489,12 @@ body {
 .door-card:nth-child(2) { transition-delay: 0.15s; }
 .door-card:nth-child(3) { transition-delay: 0.30s; }
 .door-card:nth-child(4) { transition-delay: 0.45s; }
+.door-card:nth-child(5) { transition-delay: 0.60s; }
+
+.door-card--wide {
+  grid-column: 1 / -1;
+  justify-self: center;
+}
 
 .door-frame {
   position: relative;
