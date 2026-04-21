@@ -751,6 +751,19 @@ body {
   margin-bottom: 1.5rem;
 }
 
+.room-attribution {
+  font-size: 0.8rem;
+  line-height: 1.6;
+  color: var(--clr-text-muted);
+  font-style: italic;
+  margin: -0.5rem 0 2rem;
+  letter-spacing: 0.02em;
+}
+
+.room-attribution em {
+  font-style: normal;
+}
+
 .room-figure {
   margin: 0 0 2rem;
   border-radius: 4px;
