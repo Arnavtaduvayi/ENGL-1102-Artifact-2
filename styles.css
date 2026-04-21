@@ -467,12 +467,24 @@ body {
    ============================================================ */
 .doors-container {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(6, 1fr);
   gap: 4rem 3rem;
   max-width: 900px;
   width: 100%;
   justify-items: center;
   perspective: 1200px;
+}
+
+.door-card {
+  grid-column: span 2;
+}
+
+.door-card:nth-child(4) {
+  grid-column: 2 / span 2;
+}
+
+.door-card:nth-child(5) {
+  grid-column: 4 / span 2;
 }
 
 .door-card {
@@ -1318,6 +1330,16 @@ body.locked {
   .doors-container {
     grid-template-columns: repeat(2, 1fr);
     gap: 2rem;
+  }
+
+  .door-card,
+  .door-card:nth-child(4) {
+    grid-column: auto;
+  }
+
+  .door-card:nth-child(5) {
+    grid-column: 1 / -1;
+    justify-self: center;
   }
 
   .door-frame {
