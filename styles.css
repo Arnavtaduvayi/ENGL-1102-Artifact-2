@@ -467,11 +467,24 @@ body {
    ============================================================ */
 .doors-container {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 4rem 6rem;
-  max-width: 800px;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 4rem 2rem;
+  max-width: 900px;
   width: 100%;
+  justify-items: center;
   perspective: 1200px;
+}
+
+.door-card {
+  grid-column: span 2;
+}
+
+.door-card:nth-child(4) {
+  grid-column: 2 / span 2;
+}
+
+.door-card:nth-child(5) {
+  grid-column: 4 / span 2;
 }
 
 .door-card {
@@ -490,11 +503,6 @@ body {
 .door-card:nth-child(3) { transition-delay: 0.30s; }
 .door-card:nth-child(4) { transition-delay: 0.45s; }
 .door-card:nth-child(5) { transition-delay: 0.60s; }
-
-.door-card--wide {
-  grid-column: 1 / -1;
-  justify-self: center;
-}
 
 .door-frame {
   position: relative;
@@ -1309,6 +1317,16 @@ body.locked {
   .doors-container {
     grid-template-columns: repeat(2, 1fr);
     gap: 2rem;
+  }
+
+  .door-card,
+  .door-card:nth-child(4) {
+    grid-column: auto;
+  }
+
+  .door-card:nth-child(5) {
+    grid-column: 1 / -1;
+    justify-self: center;
   }
 
   .door-frame {
