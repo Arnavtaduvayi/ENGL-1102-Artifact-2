@@ -11,6 +11,8 @@
 </head>
 <body>
 
+  <!-- ===== NAV ===== -->
+  <!-- Shared site navigation. "active" marks the current page. -->
   <nav class="site-nav">
     <a href="index.html" class="nav-link">Home</a>
     <a href="about.html" class="nav-link">About</a>
@@ -18,13 +20,19 @@
     <a href="sources.html" class="nav-link active">Sources</a>
   </nav>
 
+  <!-- ===== CUSTOM CURSOR ===== -->
+  <!-- Warm "candle" glow that follows the cursor. Driven by the script below. -->
   <div id="cursor-glow" class="cursor-glow"></div>
 
+  <!-- ===== PAGE HERO ===== -->
   <header class="about-hero">
     <h1 class="about-hero-title">Sources</h1>
     <div class="about-hero-line"></div>
   </header>
 
+  <!-- ===== SOURCES LIST =====
+       APA-style citations for the secondary sources used across the exhibit.
+       Each item links out to the original source in a new tab. -->
   <main class="about-main sources-page">
     <ol class="sources-list">
       <li class="sources-item">
@@ -50,30 +58,43 @@
     </ol>
   </main>
 
+  <!-- ===== FOOTER ===== -->
   <footer class="site-footer">
     <p>&copy; 2026 — Never Let Me Go Project</p>
   </footer>
 
+  <!-- ===== CURSOR GLOW SCRIPT =====
+       Tracks the mouse and eases a glow element toward it via requestAnimationFrame.
+       The lerp factor (0.16) controls how fast the glow catches up to the cursor. -->
   <script>
     (() => {
       const glow = document.getElementById("cursor-glow");
       if (!glow) return;
+
+      // mx/my: latest mouse position. gx/gy: current glow position (eased).
       let mx = -500, my = -500, gx = -500, gy = -500, active = false, raf = false;
+
+      // Animation loop: ease the glow toward the mouse and stop when close enough.
       function tick() {
         raf = false;
         gx += (mx - gx) * 0.16;
         gy += (my - gy) * 0.16;
+        // Offset by half the glow size (220px) so it centers on the cursor.
         glow.style.transform = `translate3d(${gx - 110}px,${gy - 110}px,0)`;
         if (Math.abs(mx - gx) > 0.5 || Math.abs(my - gy) > 0.5) {
           raf = true;
           requestAnimationFrame(tick);
         }
       }
+
+      // Update target position on mouse move and kick off the loop if needed.
       document.addEventListener("mousemove", (e) => {
         mx = e.clientX; my = e.clientY;
         if (!active) { active = true; glow.classList.add("active"); }
         if (!raf) { raf = true; requestAnimationFrame(tick); }
       }, { passive: true });
+
+      // Hide the glow when the cursor leaves the window.
       document.addEventListener("mouseleave", () => {
         active = false; glow.classList.remove("active");
       });
