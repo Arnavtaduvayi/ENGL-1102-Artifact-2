@@ -10,6 +10,7 @@
 }
 
 :root {
+  /* Site-wide design tokens: colours and font stacks shared by every page. */
   --clr-bg: #0c0b0d;
   --clr-bg-warm: #1a1714;
   --clr-surface: #1e1b18;
