@@ -47,7 +47,7 @@ body {
   height: 220px;
   border-radius: 50%;
   pointer-events: none;
-  z-index: 9999;
+  z-index: 9999; /* Sits above every other layer so the candle glow is never clipped. */
   background: radial-gradient(
     circle at center,
     rgba(255, 230, 170, 0.25) 0%,
